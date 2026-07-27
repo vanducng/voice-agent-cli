@@ -53,4 +53,4 @@ npm run test:package
 npm pack --ignore-scripts
 ```
 
-It dry-runs publication, uploads the tarball, then the protected publish job sends that exact artifact through npm OIDC and reads the version back from the registry. Never retry a failed release with a version that npm already accepted because npm versions are immutable.
+It dry-runs publication, uploads the tarball, then the protected publish job sends that exact artifact through npm OIDC and reads the version back from the registry. After npm verification succeeds, a separate least-privilege job creates the GitHub Release with generated notes. Never retry a failed release with a version that npm already accepted because npm versions are immutable.
