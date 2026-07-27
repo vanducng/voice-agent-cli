@@ -95,7 +95,7 @@ describe("searchTranscriptsCommand", () => {
     it("should accept valid status values", async () => {
       mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
-      const validStatuses = ["error", "ended", "ongoing"];
+      const validStatuses = ["error", "ended", "ongoing", "not_connected"];
       for (const status of validStatuses) {
         await searchTranscriptsCommand({ status });
         expect(mockClient.call.list).toHaveBeenCalled();

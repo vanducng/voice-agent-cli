@@ -50,7 +50,7 @@ const CallListPageSchema = z.object({
 /**
  * Options for searching transcripts
  *
- * @property status - Filter by call status (error, ended, ongoing)
+ * @property status - Filter by call status (error, ended, ongoing, not_connected)
  * @property agentId - Filter by specific agent ID
  * @property since - Start date for filtering calls (YYYY-MM-DD or ISO 8601 format)
  * @property until - End date for filtering calls (YYYY-MM-DD or ISO 8601 format)

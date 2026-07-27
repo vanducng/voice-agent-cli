@@ -18,6 +18,10 @@ Use the CLI as a JSON boundary:
 - Use `--fields` to reduce output when a command supports it.
 - Run `vac retell <group> --help` instead of assuming CRUD symmetry.
 
+## Bundled agent guidance
+
+The repository and npm package include `skills/voice-agent-cli/SKILL.md` for reusable agent workflows. Root `AGENTS.md` defines project development and release rules, while `CLAUDE.md` loads those same instructions for Claude Code.
+
 For mutation workflows, inspect before editing, use `--dry-run` where available, and publish drafts explicitly:
 
 ```bash

@@ -4,6 +4,18 @@ import { describe, expect, it } from "vitest";
 const packageJson = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),
 );
+const agentGuide = readFileSync(
+  new URL("../AGENTS.md", import.meta.url),
+  "utf8",
+);
+const claudeGuide = readFileSync(
+  new URL("../CLAUDE.md", import.meta.url),
+  "utf8",
+);
+const agentSkill = readFileSync(
+  new URL("../skills/voice-agent-cli/SKILL.md", import.meta.url),
+  "utf8",
+);
 
 describe("package metadata", () => {
   it("publishes the voice-agent-cli identity", () => {
@@ -54,7 +66,20 @@ describe("package metadata", () => {
   });
 
   it("publishes only runtime and user-facing package files", () => {
-    expect(packageJson.files).toEqual(["dist", "README.md", "LICENSE"]);
+    expect(packageJson.files).toEqual([
+      "dist",
+      "skills",
+      "AGENTS.md",
+      "CLAUDE.md",
+      "README.md",
+      "LICENSE",
+    ]);
     expect(packageJson.files).not.toContain("CHANGELOG.md");
+  });
+
+  it("ships agent guidance with a Claude entrypoint", () => {
+    expect(agentGuide).toContain("skills/voice-agent-cli/SKILL.md");
+    expect(claudeGuide.trim()).toBe("@AGENTS.md");
+    expect(agentSkill).toMatch(/^---\nname: voice-agent-cli\n/);
   });
 });

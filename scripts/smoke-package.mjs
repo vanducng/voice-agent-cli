@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -72,6 +72,21 @@ try {
     temp,
   );
 
+  const packageRoot = join(
+    run("npm", ["root", "--global", "--prefix", prefix], temp).trim(),
+    "voice-agent-cli",
+  );
+  for (const path of [
+    "AGENTS.md",
+    "CLAUDE.md",
+    join("skills", "voice-agent-cli", "SKILL.md"),
+    join("skills", "voice-agent-cli", "agents", "openai.yaml"),
+  ]) {
+    if (!existsSync(join(packageRoot, path))) {
+      throw new Error(`installed package is missing ${path}`);
+    }
+  }
+
   const vacRootHelp = run(executable(prefix, "vac"), ["--help"], temp);
   const aliasRootHelp = run(
     executable(prefix, "voice-agent"),
@@ -142,7 +157,7 @@ try {
   }
 
   console.log(
-    "Package smoke: PASS (packed, installed, both binaries, help, structured errors)",
+    "Package smoke: PASS (packed, installed, agent guidance, both binaries, help, structured errors)",
   );
 } finally {
   rmSync(temp, { recursive: true, force: true });
