@@ -1,6 +1,6 @@
 {
   "name": "voice-agent-cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Provider-neutral CLI for managing voice agents, calls, prompts, and related resources",
   "main": "dist/index.js",
   "bin": {
@@ -43,7 +43,7 @@
   "bugs": {
     "url": "https://github.com/vanducng/voice-agent-cli/issues"
   },
-  "homepage": "https://github.com/vanducng/voice-agent-cli#readme",
+  "homepage": "https://vanducng.github.io/voice-agent-cli/",
   "publishConfig": {
     "access": "public"
   },

@@ -4,15 +4,18 @@ Provider-neutral CLI for managing voice agents, calls, prompts, and related reso
 
 The package is `voice-agent-cli`. It requires Node.js 22 or newer and provides `vac` as the canonical binary plus `voice-agent` as an equivalent alias.
 
-## Run from source
-
-The npm package is not published yet. From this checkout:
+## Install
 
 ```bash
-npm ci
-npm run build
-npm link
+npm install --global voice-agent-cli
+vac --version
 vac retell --help
+```
+
+Upgrade to the latest stable npm release later with:
+
+```bash
+vac upgrade
 ```
 
 Authenticate with an environment variable or the interactive login:
@@ -25,19 +28,21 @@ vac retell agents list --fields agent_id,agent_name
 vac retell login
 ```
 
-When the package is published, installation will be:
+## Develop from source
 
 ```bash
-npm install --global voice-agent-cli
+npm ci
+npm run build
+npm link
+vac retell --help
 ```
-
-Do not treat that future command as available until the first npm release is verified.
 
 ## Documentation
 
-The documentation site covers installation, the provider model, Retell compatibility, prompt workflows, command reference, architecture, development, and release setup.
+The documentation site covers installation, the provider model, Retell compatibility, prompt workflows, command reference, architecture, development, and releases.
 
-- [Start here](./docs/src/content/docs/index.md)
+- [Read the documentation](https://vanducng.github.io/voice-agent-cli/)
+- [Documentation source](./docs/src/content/docs/index.md)
 - [Build the docs locally](./docs/README.md)
 
 ## Validate

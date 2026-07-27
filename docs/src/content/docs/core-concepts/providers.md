@@ -3,10 +3,11 @@ title: Provider model
 description: How Voice Agent CLI isolates provider-specific behavior
 ---
 
-The root CLI is provider-neutral, while every integration owns its commands, services, and types. Today the root registers one namespace:
+The root CLI is provider-neutral, while every integration owns its commands, services, and types. Today the root registers one utility command and one provider namespace:
 
 ```text
 vac
+├── upgrade
 └── retell
 ```
 
@@ -14,7 +15,8 @@ The boundary is concrete:
 
 | Path                    | Responsibility                                                 |
 | ----------------------- | -------------------------------------------------------------- |
-| `src/cli.ts`            | Defines `vac` and registers providers                          |
+| `src/cli.ts`            | Defines `vac` and registers root commands and providers        |
+| `src/commands/`         | Provider-neutral user commands such as self-upgrade            |
 | `src/core/`             | Provider-neutral parsing, pagination, and error helpers        |
 | `src/providers/retell/` | Retell commands, configuration, SDK access, prompts, and types |
 

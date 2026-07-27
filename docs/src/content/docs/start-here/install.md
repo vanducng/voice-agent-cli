@@ -1,13 +1,29 @@
 ---
 title: Install and run
-description: Run Voice Agent CLI from the current source checkout
+description: Install Voice Agent CLI from npm or run the current source checkout
 ---
 
 Voice Agent CLI requires Node.js 22 or newer. The package name is `voice-agent-cli`, `vac` is the canonical binary, and `voice-agent` is an equivalent alias. These values come from the root `package.json`.
 
-## Current installation
+## Install from npm
 
-The npm package is not published yet. Run the current checkout from source:
+```bash
+npm install --global voice-agent-cli
+vac --version
+vac retell --help
+```
+
+Both binaries point to the same CLI. If `vac` conflicts with another command on your system, use `voice-agent`.
+
+## Upgrade
+
+```bash
+vac upgrade
+```
+
+The command uses the active npm installation to install `voice-agent-cli@latest`. It returns structured JSON with the previous version and a verification command. If npm fails, the error includes the direct npm command and environment checks to run next.
+
+## Run from source
 
 ```bash
 npm ci
@@ -17,15 +33,4 @@ vac --help
 vac retell --help
 ```
 
-`npm link` installs both binary names from the same `dist/index.js` entrypoint. If `vac` conflicts with another command on your system, use `voice-agent`.
-
-## Future npm installation
-
-After the first npm release is verified, installation will be:
-
-```bash
-npm install --global voice-agent-cli
-vac --help
-```
-
-This is the planned registry command, not a claim that the package is available today. See [Package and release](../../project/release/) for the bootstrap requirements.
+`npm link` installs both binary names from the same `dist/index.js` entrypoint. See [Package and release](../../project/release/) for the automated release flow.

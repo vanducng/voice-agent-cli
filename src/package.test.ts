@@ -9,7 +9,6 @@ describe("package metadata", () => {
   it("publishes the voice-agent-cli identity", () => {
     expect(packageJson).toMatchObject({
       name: "voice-agent-cli",
-      version: "0.1.0",
       author: "Duc Nguyen <me@vanducng.dev>",
       license: "MIT",
       repository: {
@@ -19,9 +18,10 @@ describe("package metadata", () => {
       bugs: {
         url: "https://github.com/vanducng/voice-agent-cli/issues",
       },
-      homepage: "https://github.com/vanducng/voice-agent-cli#readme",
+      homepage: "https://vanducng.github.io/voice-agent-cli/",
       publishConfig: { access: "public" },
     });
+    expect(packageJson.version).toMatch(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/);
   });
 
   it("uses provider-neutral discovery metadata", () => {

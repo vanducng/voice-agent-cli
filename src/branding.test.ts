@@ -4,11 +4,14 @@ import { describe, expect, it } from "vitest";
 
 const root = join(__dirname, "..");
 const textExtensions = new Set([".json", ".md", ".ts", ".yml", ".yaml"]);
+const ignoredDirectories = new Set([".astro", "dist", "node_modules"]);
 
 function textFiles(path: string): string[] {
   return readdirSync(path, { withFileTypes: true }).flatMap((entry) => {
     const entryPath = join(path, entry.name);
-    if (entry.isDirectory()) return textFiles(entryPath);
+    if (entry.isDirectory()) {
+      return ignoredDirectories.has(entry.name) ? [] : textFiles(entryPath);
+    }
     return textExtensions.has(extname(entry.name)) ? [entryPath] : [];
   });
 }

@@ -32,18 +32,22 @@ afterEach(() => {
 });
 
 describe("voice-agent CLI", () => {
-  it("exposes Retell as the only root provider", () => {
+  it("exposes the upgrade utility and Retell as the only provider", () => {
     const program = createProgram();
 
     expect(program.name()).toBe("vac");
     expect(program.commands.map((command) => command.name())).toEqual([
+      "upgrade",
       "retell",
     ]);
+    expect(program.helpInformation()).toContain("upgrade");
     expect(program.helpInformation()).toContain("retell");
   });
 
   it("registers every existing command group under Retell", () => {
-    const provider = createProgram().commands[0];
+    const provider = createProgram().commands.find(
+      (command) => command.name() === "retell",
+    )!;
 
     expect(provider.name()).toBe("retell");
     expect(provider.commands.map((command) => command.name()).sort()).toEqual(
@@ -52,7 +56,9 @@ describe("voice-agent CLI", () => {
   });
 
   it("documents paginated agent output and provider-owned prompt defaults", () => {
-    const provider = createProgram().commands[0];
+    const provider = createProgram().commands.find(
+      (command) => command.name() === "retell",
+    )!;
     const agents = provider.commands.find(
       (command) => command.name() === "agents",
     )!;

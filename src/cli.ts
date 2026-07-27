@@ -1,6 +1,7 @@
 import { Command, CommanderError } from "commander";
 import { readFileSync } from "fs";
 import { join } from "path";
+import { registerUpgradeCommand } from "./commands/upgrade";
 import { reportCliError, ReportedCliError } from "./core/cli-response";
 import { registerRetellCommands } from "./providers/retell/register";
 
@@ -15,6 +16,7 @@ export function createProgram(): Command {
     .version(version, "-v, --version", "Display version number")
     .helpOption("-h, --help", "Display help for command");
 
+  registerUpgradeCommand(program, version);
   registerRetellCommands(program);
   return program;
 }

@@ -89,8 +89,14 @@ try {
     temp,
   );
 
-  if (!vacRootHelp.includes("vac") || !vacRootHelp.includes("retell")) {
-    throw new Error("installed root help is missing the CLI or provider name");
+  if (
+    !vacRootHelp.includes("vac") ||
+    !vacRootHelp.includes("upgrade") ||
+    !vacRootHelp.includes("retell")
+  ) {
+    throw new Error(
+      "installed root help is missing the CLI, upgrade, or provider command",
+    );
   }
   if (vacRootHelp !== aliasRootHelp || vacRetellHelp !== aliasRetellHelp) {
     throw new Error("installed vac and voice-agent binaries differ");
