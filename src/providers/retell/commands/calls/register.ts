@@ -6,6 +6,7 @@ import { updateCallCommand } from "./update";
 import { updateLiveCallCommand } from "./update-live";
 import { deleteCallCommand } from "./delete";
 import { stopCallCommand } from "./stop";
+import { rerunCallAnalysisCommand } from "./rerun-analysis";
 
 export function registerCallsCommands(program: Command): void {
   const calls = program
@@ -110,11 +111,18 @@ Examples:
 
   calls
     .command("update-live <call_id>")
-    .description("Update settings on an ongoing call")
-    .requiredOption(
+    .description("Override settings or control an ongoing call")
+    .option(
       "--dynamic-variables <json>",
       "Inline JSON or @path overriding dynamic variables",
     )
+    .option("--metadata <json>", "Inline JSON or @path for call metadata")
+    .option(
+      "--data-storage-setting <value>",
+      "everything | everything_except_pii | basic_attributes_only",
+    )
+    .option("--additional-context <text>", "Inject context into the live call")
+    .option("--trigger-response", "Trigger an immediate agent response")
     .action(async (callId, options) => {
       await updateLiveCallCommand(callId, options);
     });
@@ -124,6 +132,13 @@ Examples:
     .description("Stop an ongoing call")
     .action(async (callId) => {
       await stopCallCommand(callId);
+    });
+
+  calls
+    .command("rerun-analysis <call_id>")
+    .description("Rerun post-call analysis for a completed call")
+    .action(async (callId) => {
+      await rerunCallAnalysisCommand(callId);
     });
 
   calls

@@ -37,11 +37,82 @@ describe("updateLiveCallCommand", () => {
     expect(outputFormatter.outputJson).toHaveBeenCalledWith(response);
   });
 
-  it("requires dynamic variables", async () => {
+  it("clears live dynamic variables with null", async () => {
+    await updateLiveCallCommand("call_1", {
+      dynamicVariables: "null",
+    });
+
+    expect(patch).toHaveBeenCalledWith("/v2/update-live-call/call_1", {
+      body: {
+        fields_to_override: {
+          override_dynamic_variables: null,
+        },
+      },
+    });
+  });
+
+  it("combines every current live-call override", async () => {
+    await updateLiveCallCommand("call_1", {
+      dynamicVariables: '{"name":"Jane"}',
+      metadata: '{"ticket_id":"ticket_1"}',
+      dataStorageSetting: "everything_except_pii",
+      additionalContext: "The customer opened a billing ticket.",
+      triggerResponse: true,
+    });
+
+    expect(patch).toHaveBeenCalledWith("/v2/update-live-call/call_1", {
+      body: {
+        fields_to_override: {
+          override_dynamic_variables: { name: "Jane" },
+          metadata: { ticket_id: "ticket_1" },
+          data_storage_setting: "everything_except_pii",
+        },
+        call_control: {
+          additional_context: "The customer opened a billing ticket.",
+          trigger_response: true,
+        },
+      },
+    });
+  });
+
+  it("omits empty request sections", async () => {
+    await updateLiveCallCommand("call_1", {
+      triggerResponse: true,
+    });
+
+    expect(patch).toHaveBeenCalledWith("/v2/update-live-call/call_1", {
+      body: {
+        call_control: {
+          trigger_response: true,
+        },
+      },
+    });
+  });
+
+  it("requires at least one mutation flag", async () => {
     await updateLiveCallCommand("call_1", {});
 
     expect(outputFormatter.handleSdkError).toHaveBeenCalledWith(
       expect.objectContaining({ name: "ValidationError" }),
+    );
+    expect(patch).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [{ metadata: "[]" }, "--metadata must be a JSON object"],
+    [
+      { dataStorageSetting: "archive_forever" },
+      "--data-storage-setting must be one of",
+    ],
+    [{ additionalContext: "   " }, "--additional-context must not be empty"],
+  ] as const)("rejects invalid options", async (options, message) => {
+    await updateLiveCallCommand("call_1", options);
+
+    expect(outputFormatter.handleSdkError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "ValidationError",
+        message: expect.stringContaining(message),
+      }),
     );
     expect(patch).not.toHaveBeenCalled();
   });

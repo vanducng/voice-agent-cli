@@ -24,7 +24,7 @@ vac [--help] [--version]
 | `prompts`         | Pull, diff, and update prompt directories                        |
 | `tools`           | Manage agent tools and import/export tool JSON                   |
 | `tests`           | Manage cases, batches, and runs                                  |
-| `calls`           | Create, register, update, stop, and delete calls                 |
+| `calls`           | Create, update, control, rerun analysis, stop, and delete calls |
 | `transcripts`     | List, get, search, and analyze call records                      |
 | `batch-calls`     | Schedule bulk outbound calls                                     |
 | `exports`         | List export requests                                             |
@@ -33,7 +33,7 @@ vac [--help] [--version]
 | `flows`           | Manage conversation flows                                        |
 | `flow-components` | Manage reusable flow components                                  |
 | `chat-agents`     | Manage and publish chat agents                                   |
-| `chats`           | Manage chat sessions and completions                             |
+| `chats`           | Manage sessions, completions, and post-chat analysis            |
 | `playground`      | Run stateless playground completions                             |
 | `phone-numbers`   | Purchase, import, bind, update, and release numbers              |
 | `voices`          | List, search, clone, and add voice resources                     |

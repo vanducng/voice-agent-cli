@@ -11,6 +11,7 @@ import {
   ReportedCliError,
   type CliErrorInput,
 } from "../../../core/cli-response";
+import { RetellPayloadValidationError } from "./agent-payload";
 import { ConfigError } from "./config";
 
 // ===== CONSTANTS =====
@@ -307,6 +308,13 @@ export function handleSdkError(error: unknown): never {
 
   if (error instanceof ConfigError) {
     outputError(error.message, error.code);
+  }
+
+  if (error instanceof RetellPayloadValidationError) {
+    outputError(error.message, error.code, {
+      retryable: error.retryable,
+      nextSteps: error.nextSteps,
+    });
   }
 
   if (error instanceof Retell.NotFoundError) {

@@ -5,6 +5,7 @@
  */
 
 import { getRetellClient } from "../../services/retell-client";
+import { validateCurrentAgentPayload } from "../../services/agent-payload";
 import {
   outputJson,
   handleSdkError,
@@ -24,6 +25,7 @@ export async function updateChatAgentCommand(
 ): Promise<void> {
   try {
     const rawBody = readJsonObjectFile(options.file, "--file");
+    validateCurrentAgentPayload(rawBody, "chat");
     if (Object.keys(rawBody).length === 0) {
       const err = new Error(
         "--file body is empty. Pass at least one mutation field (e.g. agent_name, response_engine).",

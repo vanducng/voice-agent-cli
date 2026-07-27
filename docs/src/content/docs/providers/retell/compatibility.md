@@ -24,8 +24,10 @@ The CLI calls only current endpoints. It requires the current paginated response
 | Test runs list | `GET /v2/list-test-runs/{test_case_batch_job_id}` | `client.tests.listTestRuns()` |
 | Agent publish | `POST /publish-agent-version/{agent_id}` with an explicit version | `client.agent.publish()` or `client.chatAgent.publish()` |
 | Live call override | `PATCH /v2/update-live-call/{call_id}` | Generic SDK `patch()` with the current path |
+| Call analysis rerun | `PUT /rerun-call-analysis/{call_id}` | Generic SDK `put()` with automatic retries disabled |
+| Chat analysis rerun | `PUT /rerun-chat-analysis/{chat_id}` | Generic SDK `put()` with automatic retries disabled |
 
-`retell-sdk` 5.48.0 does not expose a generated Update Live Call helper, so `calls update-live` uses the SDK's generic request client. The command currently supports `override_dynamic_variables` and returns the API's `{ "success": true }` response.
+`retell-sdk` 5.48.0 does not expose generated helpers for Update Live Call or analysis reruns, so these commands use the SDK's generic request client. `calls update-live` supports `override_dynamic_variables`, `metadata`, `data_storage_setting`, `additional_context`, and `trigger_response`, and returns the API's `{ "success": true }` response.
 
 ## Removed legacy contracts
 
@@ -45,7 +47,7 @@ The old endpoint names above are migration history only. They are not present in
 
 - Phone number assignments use weighted `inbound_agents` and `outbound_agents` arrays. A single agent becomes a one-entry array with weight `1`.
 - Multilingual agents use explicit locale arrays such as `["en-US", "es-ES"]`. The removed scalar `"multi"` value is not supported.
-- Voice and chat analysis use `post_call_analysis_data` and `post_chat_analysis_data`; removed top-level analysis prompt fields are not supported.
+- Voice and chat analysis use `post_call_analysis_data` and `post_chat_analysis_data`. Create and update commands reject `analysis_summary_prompt`, `analysis_successful_prompt`, and `analysis_user_sentiment_prompt` locally with `DEPRECATED_RETELL_PAYLOAD` and resource-specific system-preset replacement shapes.
 - Test case definitions use the SDK fields `name`, `user_prompt`, `metrics`, `response_engine`, `dynamic_variables`, `tool_mocks`, and `llm_model`.
 - Test run results identify jobs with `test_case_job_id` and expose `result_explanation`; removed local `test_run_id` and `metric_results` shapes are not supported.
 - Model and resource types come from the pinned SDK instead of local legacy unions.
@@ -59,6 +61,8 @@ The old endpoint names above are migration history only. They are not present in
 - [Weighted phone number agent fields](https://docs.retellai.com/deprecation-notice/2026/03-31_phone_number_agent_fields)
 - [Multilingual locale arrays](https://docs.retellai.com/deprecation-notice/2026/07-31_legacy_multilingual_setting)
 - [Current Update Live Call API](https://docs.retellai.com/api-references/update-live-call)
+- [Rerun Call Analysis API](https://docs.retellai.com/api-references/rerun-call-analysis)
+- [Rerun Chat Analysis API](https://docs.retellai.com/api-references/rerun-chat-analysis)
 
 ## Verification
 

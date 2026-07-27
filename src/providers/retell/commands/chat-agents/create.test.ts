@@ -5,6 +5,7 @@ import { tmpdir } from "os";
 import { createChatAgentCommand } from "./create";
 import * as retellClient from "../../services/retell-client";
 import * as outputFormatter from "../../services/output-formatter";
+import { RetellPayloadValidationError } from "../../services/agent-payload";
 
 vi.mock("../../services/retell-client");
 vi.mock("../../services/output-formatter", async () => {
@@ -72,6 +73,38 @@ describe("createChatAgentCommand", () => {
     };
     writeFileSync(tmpFile, JSON.stringify(body));
     await createChatAgentCommand({ file: tmpFile });
+    expect(mockClient.chatAgent.create).toHaveBeenCalledWith(body);
+  });
+
+  it("rejects deprecated file payloads before create", async () => {
+    writeFileSync(
+      tmpFile,
+      JSON.stringify({ analysis_summary_prompt: "Summarize" }),
+    );
+
+    await createChatAgentCommand({ file: tmpFile });
+
+    expect(mockClient.chatAgent.create).not.toHaveBeenCalled();
+    expect(outputFormatter.handleSdkError).toHaveBeenCalledWith(
+      expect.any(RetellPayloadValidationError),
+    );
+  });
+
+  it("passes current analysis and locale fields unchanged", async () => {
+    const body = {
+      language: ["en-US", "es-ES"],
+      post_chat_analysis_data: [
+        {
+          type: "system-presets",
+          name: "chat_summary",
+          description: "Summarize",
+        },
+      ],
+    };
+    writeFileSync(tmpFile, JSON.stringify(body));
+
+    await createChatAgentCommand({ file: tmpFile });
+
     expect(mockClient.chatAgent.create).toHaveBeenCalledWith(body);
   });
 

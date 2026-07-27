@@ -7,6 +7,7 @@
 
 import { readFileSync, existsSync } from "fs";
 import { getRetellClient } from "../../services/retell-client";
+import { validateCurrentAgentPayload } from "../../services/agent-payload";
 import {
   outputJson,
   outputError,
@@ -115,6 +116,20 @@ export async function createAgentCommand(
         config.agent_name = options.name;
       }
     }
+
+    if (
+      typeof config !== "object" ||
+      config === null ||
+      Array.isArray(config)
+    ) {
+      outputError(
+        "Config file must contain a JSON object with agent configuration fields",
+        "INVALID_FORMAT",
+      );
+      return;
+    }
+
+    validateCurrentAgentPayload(config, "voice");
 
     // Create the agent
     const agent = await client.agent.create(config as any);

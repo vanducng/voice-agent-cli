@@ -104,13 +104,27 @@ Publishing is a separate action. Pass an explicit draft version when it is known
 
 ### Update an ongoing call
 
-Use `calls update-live` only for an ongoing call. The command currently exposes dynamic-variable overrides and returns `{ "success": true }`:
+Retrieve the call and confirm it is ongoing before using `calls update-live`. The command accepts dynamic-variable overrides, metadata, data-storage settings, additional context, and an immediate response trigger:
 
 ```bash
-vac retell calls update-live call_123 --dynamic-variables '{"customer_tier":"gold"}'
+vac retell calls update-live call_123 \
+  --dynamic-variables '{"customer_tier":"gold"}' \
+  --additional-context "The customer has completed verification." \
+  --trigger-response
 ```
 
-Use the regular call update command only for its documented persisted fields.
+Dynamic-variable values must be strings; `null` clears the override. Use the regular call update command only for an ended call and its documented persisted fields. Retrieve the call again to verify changes when the API exposes them.
+
+### Rerun analysis
+
+Rerun analysis only for a completed call or chat after explicit authorization:
+
+```bash
+vac retell calls rerun-analysis call_123
+vac retell chats rerun-analysis chat_123
+```
+
+Retrieve the resource before and after the mutation. Do not automatically retry either command because rerunning analysis can replace results and incur work.
 
 ## Handle failures for another agent
 
