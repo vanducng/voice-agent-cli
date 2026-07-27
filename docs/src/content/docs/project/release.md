@@ -49,7 +49,7 @@ Do not run `npm version`, edit `CHANGELOG.md`, or push release tags manually. Re
 4. Release Please creates the matching tag and GitHub Release.
 5. The same workflow validates, packs, publishes through npm OIDC, and verifies the npm registry version.
 
-Publication stays in the same workflow run because tags created with GitHub's default workflow token do not start another workflow. The release PR remains a human-reviewed merge. Its automated commits do not start separate CI runs when the default workflow token is used, so feature PRs remain the required pre-merge validation boundary. No repository secret or long-lived npm token is required.
+Publication stays in the same workflow run because tags created with GitHub's default workflow token do not start another workflow. The release PR remains a human-reviewed merge. Its pull request workflows enter an approval-required state until a maintainer starts them; unattended CI or auto-merge would require a GitHub App token. No repository secret or long-lived npm token is required for the manual flow.
 
 ## Release gate
 
