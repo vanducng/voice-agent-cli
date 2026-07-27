@@ -23,7 +23,14 @@ vac retell transcripts list --limit 10
 vac retell prompts pull agent_123
 ```
 
-The npm package is currently unpublished. Use the [source installation](./start-here/install/) until the first registry release is verified.
+Install the public package from npm:
+
+```bash
+npm install --global voice-agent-cli
+vac --version
+```
+
+See [Install and run](./start-here/install/) for source installation and provider authentication.
 
 ## Where to go next
 

@@ -5,7 +5,14 @@ description: Resolve common installation, authentication, prompt, and shell fail
 
 ## `vac` is not found
 
-The npm package is not published yet. Build and link the current checkout:
+Install or refresh the global package:
+
+```bash
+npm install --global voice-agent-cli
+vac --version
+```
+
+To run the current checkout instead:
 
 ```bash
 npm ci

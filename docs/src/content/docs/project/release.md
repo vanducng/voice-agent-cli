@@ -1,17 +1,13 @@
 ---
 title: Package and release
-description: Unpublished package status, npm OIDC setup, and tag release flow
+description: npm OIDC setup, semantic versions, and the tag release flow
 ---
 
-`voice-agent-cli` is version `0.1.0` in the current manifest, but the npm package is not published. Do not present `npm install --global voice-agent-cli` as available until a registry read verifies the first release.
+`voice-agent-cli` is public on npm. Version `0.1.0` was bootstrapped interactively; tagged releases starting with `0.1.1` are published by GitHub Actions through npm OIDC.
 
 ## One-time setup
 
-1. Ensure the public GitHub repository is `vanducng/voice-agent-cli` and the package metadata points to it.
-2. Confirm the unscoped npm name is available immediately before bootstrap.
-3. Publish the first immutable version with an npm account that has two-factor authentication. The package must exist before its Trusted Publisher binding can be used.
-4. Create a protected GitHub environment named `npm`.
-5. Configure the npm Trusted Publisher with these exact values:
+The repository uses a protected GitHub environment named `npm` and an npm Trusted Publisher with these exact values:
 
 | Field                | Value             |
 | -------------------- | ----------------- |
@@ -26,7 +22,21 @@ Do not store a long-lived npm token for regular releases. The publish job in `.g
 
 See npm's official [Trusted Publishers](https://docs.npmjs.com/trusted-publishers/) and GitHub's [OIDC](https://docs.github.com/en/actions/concepts/security/openid-connect) documentation for the account-side configuration.
 
-Publish the bootstrap `0.1.0` release interactively from the verified `main` checkout without pushing a `v0.1.0` tag. Configure the Trusted Publisher after the package exists. The first automated release should bump to `0.1.1` and push `v0.1.1`; pushing `v0.1.0` would make the workflow retry an immutable version that the bootstrap already published.
+Do not push a `v0.1.0` tag because npm versions are immutable and that version was already published manually.
+
+## Semantic versions
+
+- Patch releases fix compatible behavior: `0.1.0` to `0.1.1`.
+- Minor releases add compatible commands or providers: `0.1.x` to `0.2.0`.
+- Before `1.0.0`, use a minor release for a breaking command or JSON schema change. After `1.0.0`, use a major release.
+
+Create the version change on a branch without creating a tag:
+
+```bash
+npm version patch --no-git-tag-version
+```
+
+Merge the version PR before creating and pushing `v<version>`. The workflow rejects tags whose version does not match `package.json` or whose commit is not reachable from `main`.
 
 ## Release gate
 
