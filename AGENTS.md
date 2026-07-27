@@ -13,7 +13,7 @@ Use [skills/voice-agent/SKILL.md](skills/voice-agent/SKILL.md) when operating th
 - `scripts/` - package and read-only live smoke tests
 - `docs/` - Astro and Starlight documentation site
 - `skills/` - reusable agent skills for this CLI
-- `.github/workflows/` - CI, Pages, and tag-driven npm publication
+- `.github/workflows/` - CI, Pages, Release Please, and npm OIDC publication
 
 ## Development contract
 
@@ -47,4 +47,4 @@ When `.env` is available, run `npm run test:live:retell`. It is read-only and mu
 
 ## Release
 
-Use a minor version for breaking command or JSON contract changes before `1.0.0`. Merge the version change to `main`, then push the matching `v<version>` tag. The publish workflow validates, publishes through npm OIDC, verifies the registry, and creates the GitHub Release.
+Use Conventional Commits for release intent. Release Please opens the version and changelog PR; do not edit package versions, release tags, or `CHANGELOG.md` manually. Before `1.0.0`, breaking command or JSON contract changes produce a minor release. Merging the release PR creates the tag and GitHub Release, then the same workflow validates and publishes through npm OIDC.
