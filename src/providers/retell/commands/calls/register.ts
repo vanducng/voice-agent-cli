@@ -115,7 +115,6 @@ Examples:
       "--dynamic-variables <json>",
       "Inline JSON or @path overriding dynamic variables",
     )
-    .option("--fields <fields>", "Comma-separated list of fields to return")
     .action(async (callId, options) => {
       await updateLiveCallCommand(callId, options);
     });

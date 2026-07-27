@@ -112,7 +112,6 @@ Test case JSON format:
   {
     "name": "Greeting Test",
     "user_prompt": "Hello, I need help with my order",
-    "scenario": "User is calling about an order issue",
     "metrics": ["response_quality", "task_completion"]
   }
   `,
@@ -282,7 +281,7 @@ Examples:
     });
 
   testsRuns
-    .command("get <test_run_id>")
+    .command("get <test_case_job_id>")
     .description("Get a specific test run result")
     .option("--fields <fields>", "Comma-separated list of fields to return")
     .addHelpText(
@@ -290,11 +289,11 @@ Examples:
       `
 Examples:
   $ vac retell tests runs get tcj_abc123
-  $ vac retell tests runs get tcj_abc123 --fields status,metric_results
+  $ vac retell tests runs get tcj_abc123 --fields status,result_explanation
   `,
     )
-    .action(async (testRunId, options) => {
-      await getTestRunCommand(testRunId, {
+    .action(async (testCaseJobId, options) => {
+      await getTestRunCommand(testCaseJobId, {
         fields: options.fields,
       });
     });

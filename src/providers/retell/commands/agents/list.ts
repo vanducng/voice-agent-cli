@@ -5,7 +5,7 @@ import {
   filterFields,
 } from "../../services/output-formatter";
 import {
-  normalizeListResponse,
+  getPaginatedItems,
   withPaginationMetadata,
 } from "../../../../core/paginated-response";
 import type { AgentListParams } from "retell-sdk/resources/agent";
@@ -26,14 +26,6 @@ const VOICE_AGENT_FILTER: Pick<AgentListParams, "filter_criteria"> = {
   },
 };
 
-export function normalizeAgentsResponse(response: unknown): unknown[] {
-  return normalizeListResponse(
-    response,
-    "Unexpected agents list response shape: expected array, agents[], data[], items[], or results[]",
-    ["agents", "data", "items", "results"],
-  );
-}
-
 export async function listAgentsCommand(
   options: ListAgentsOptions = {},
 ): Promise<void> {
@@ -47,7 +39,10 @@ export async function listAgentsCommand(
         : {}),
       ...VOICE_AGENT_FILTER,
     });
-    const agents = normalizeAgentsResponse(response);
+    const agents = getPaginatedItems(
+      response,
+      "Unexpected agents list response: POST /v2/list-agents must return items[].",
+    );
     const items = options.fields
       ? filterFields(
           agents,

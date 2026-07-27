@@ -14,7 +14,7 @@ export function registerLlmsCommands(program: Command): void {
     .command("list")
     .description("List Retell LLMs")
     .option("-l, --limit <n>", "Maximum number to return")
-    .option("--pagination-key <key>", "LLM id to start from")
+    .option("--pagination-key <key>", "Opaque cursor from the previous page")
     .option("--fields <fields>", "Comma-separated list of fields to return")
     .action(async (options) => {
       await listLlmsCommand(options);

@@ -39,7 +39,7 @@ describe("test-api service", () => {
         getBatchTest: vi.fn().mockResolvedValue({}),
         createBatchTest: vi.fn().mockResolvedValue({}),
         listTestRuns: vi.fn().mockResolvedValue({
-          items: [{ test_run_id: "run_1" }],
+          items: [{ test_case_job_id: "tcj_1" }],
           has_more: true,
           pagination_key: "run_next",
         }),
@@ -70,6 +70,8 @@ describe("test-api service", () => {
     await getTestCaseDefinition("tcd_1");
     await createTestCaseDefinition({
       name: "Case",
+      user_prompt: "Call the agent",
+      metrics: ["task_completion"],
       response_engine: { type: "retell-llm", llm_id: "llm_1" },
     });
     await updateTestCaseDefinition("tcd_1", { name: "Renamed" });
@@ -116,7 +118,7 @@ describe("test-api service", () => {
       pagination_key: "cursor",
     });
     expect(testRuns).toEqual({
-      items: [{ test_run_id: "run_1" }],
+      items: [{ test_case_job_id: "tcj_1" }],
       has_more: true,
       pagination_key: "run_next",
     });

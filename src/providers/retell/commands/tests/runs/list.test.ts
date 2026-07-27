@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { listTestRunsCommand } from "./list";
 import * as testApi from "../../../services/test-api";
 import * as outputFormatter from "../../../services/output-formatter";
+import type { TestRun } from "../../../types/tests";
 
 vi.mock("../../../services/test-api");
 vi.mock("../../../services/output-formatter", async () => {
@@ -15,6 +16,27 @@ vi.mock("../../../services/output-formatter", async () => {
 });
 
 describe("listTestRunsCommand", () => {
+  const testRun: TestRun = {
+    creation_timestamp: 1,
+    status: "pass",
+    test_case_definition_id: "tcd_1",
+    test_case_definition_snapshot: {
+      creation_timestamp: 1,
+      dynamic_variables: {},
+      llm_model: "gpt-5.4",
+      metrics: ["task_completion"],
+      name: "Greeting",
+      response_engine: { type: "retell-llm", llm_id: "llm_1" },
+      test_case_definition_id: "tcd_1",
+      tool_mocks: [],
+      type: "simulation",
+      user_modified_timestamp: 1,
+      user_prompt: "Hello",
+    },
+    test_case_job_id: "tcj_1",
+    user_modified_timestamp: 1,
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(testApi.listTestRuns).mockResolvedValue({
@@ -36,7 +58,7 @@ describe("listTestRunsCommand", () => {
 
   it("includes pagination metadata in the output", async () => {
     vi.mocked(testApi.listTestRuns).mockResolvedValueOnce({
-      items: [{ test_run_id: "run_1" } as any],
+      items: [testRun],
       has_more: true,
       pagination_key: "run_next",
     });
@@ -45,7 +67,7 @@ describe("listTestRunsCommand", () => {
 
     expect(outputFormatter.outputJson).toHaveBeenCalledWith({
       batch_job_id: "batch_1",
-      test_runs: [{ test_run_id: "run_1" }],
+      test_runs: [testRun],
       total_count: 1,
       has_more: true,
       pagination_key: "run_next",

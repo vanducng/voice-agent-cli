@@ -92,9 +92,6 @@ export async function listBatchTestsCommand(
       ...(batchTestsPage.pagination_key !== undefined && {
         pagination_key: batchTestsPage.pagination_key,
       }),
-      ...(batchTestsPage.total !== undefined && {
-        total: batchTestsPage.total,
-      }),
     };
 
     if (options.fields) {

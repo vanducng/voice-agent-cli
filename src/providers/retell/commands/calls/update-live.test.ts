@@ -10,12 +10,11 @@ vi.mock("../../services/output-formatter", async () => {
     ...actual,
     outputJson: vi.fn(),
     handleSdkError: vi.fn(),
-    filterFields: vi.fn((data, _fields) => data),
   };
 });
 
 describe("updateLiveCallCommand", () => {
-  const response = { call_id: "call_1", call_status: "ongoing" };
+  const response = { success: true };
   const patch = vi.fn().mockResolvedValue(response);
 
   beforeEach(() => {
@@ -45,17 +44,6 @@ describe("updateLiveCallCommand", () => {
       expect.objectContaining({ name: "ValidationError" }),
     );
     expect(patch).not.toHaveBeenCalled();
-  });
-
-  it("filters response fields", async () => {
-    await updateLiveCallCommand("call_1", {
-      dynamicVariables: '{"name":"Jane"}',
-      fields: "call_id",
-    });
-
-    expect(outputFormatter.filterFields).toHaveBeenCalledWith(response, [
-      "call_id",
-    ]);
   });
 
   it("delegates SDK errors", async () => {

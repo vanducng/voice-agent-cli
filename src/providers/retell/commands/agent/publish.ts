@@ -2,7 +2,6 @@
  * Agent Publish Command
  *
  * Publishes an agent's draft version to production.
- * This increments the version number and makes the draft changes live.
  */
 
 import { getRetellClient } from "../../services/retell-client";
@@ -19,8 +18,7 @@ export interface PublishAgentOptions {
  * Publish an agent's draft version to production
  *
  * Publishes the current draft version of an agent, making all pending changes
- * (prompts, configuration, etc.) live in production. The version number is
- * incremented and a new draft version is created for future edits.
+ * (prompts, configuration, etc.) live in production.
  *
  * @param agentId The unique agent ID to publish
  *

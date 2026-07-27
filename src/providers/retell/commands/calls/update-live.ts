@@ -1,15 +1,9 @@
-import type { CallResponse } from "retell-sdk/resources/call";
 import { loadStringRecordArg } from "../../../../core/json-arg";
 import { getRetellClient } from "../../services/retell-client";
-import {
-  filterFields,
-  handleSdkError,
-  outputJson,
-} from "../../services/output-formatter";
+import { handleSdkError, outputJson } from "../../services/output-formatter";
 
 export interface UpdateLiveCallOptions {
   dynamicVariables?: string;
-  fields?: string;
 }
 
 export async function updateLiveCallCommand(
@@ -29,7 +23,7 @@ export async function updateLiveCallCommand(
       throw error;
     }
 
-    const result = await getRetellClient().patch<CallResponse>(
+    const result = await getRetellClient().patch<{ success: boolean }>(
       `/v2/update-live-call/${encodeURIComponent(callId)}`,
       {
         body: {
@@ -39,14 +33,7 @@ export async function updateLiveCallCommand(
         },
       },
     );
-    const output = options.fields
-      ? filterFields(
-          result,
-          options.fields.split(",").map((field) => field.trim()),
-        )
-      : result;
-
-    outputJson(output);
+    outputJson(result);
   } catch (error) {
     handleSdkError(error);
   }

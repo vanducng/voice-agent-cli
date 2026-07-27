@@ -95,7 +95,6 @@ export async function listTestCasesCommand(
       ...(testCasesPage.pagination_key !== undefined && {
         pagination_key: testCasesPage.pagination_key,
       }),
-      ...(testCasesPage.total !== undefined && { total: testCasesPage.total }),
     };
 
     if (options.fields) {
