@@ -3,7 +3,7 @@ title: Package and release
 description: npm OIDC setup, semantic versions, and the tag release flow
 ---
 
-`voice-agent-cli` is public on npm. Version `0.1.0` was bootstrapped interactively; tagged releases starting with `0.1.1` are published by GitHub Actions through npm OIDC.
+`voice-agent-cli` is public on npm. Version `0.1.0` was bootstrapped interactively; tagged releases starting with `0.2.0` are published by GitHub Actions through npm OIDC.
 
 ## One-time setup
 

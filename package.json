@@ -1,6 +1,6 @@
 {
   "name": "voice-agent-cli",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Provider-neutral CLI for managing voice agents, calls, prompts, and related resources",
   "main": "dist/index.js",
   "bin": {

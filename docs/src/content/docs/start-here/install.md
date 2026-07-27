@@ -15,6 +15,14 @@ vac retell --help
 
 Both binaries point to the same CLI. If `vac` conflicts with another command on your system, use `voice-agent`.
 
+## Upgrade
+
+```bash
+vac upgrade
+```
+
+The command uses the active npm installation to install `voice-agent-cli@latest`. It returns structured JSON with the previous version and a verification command. If npm fails, the error includes the direct npm command and environment checks to run next.
+
 ## Run from source
 
 ```bash

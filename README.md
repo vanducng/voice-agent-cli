@@ -12,6 +12,12 @@ vac --version
 vac retell --help
 ```
 
+Upgrade to the latest stable npm release later with:
+
+```bash
+vac upgrade
+```
+
 Authenticate with an environment variable or the interactive login:
 
 ```bash

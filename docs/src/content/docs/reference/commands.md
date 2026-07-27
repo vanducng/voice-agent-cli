@@ -3,12 +3,15 @@ title: Command reference
 description: Current provider and resource command groups
 ---
 
-The root command exposes one provider namespace:
+The root command exposes one provider-neutral utility and one provider namespace:
 
 ```text
 vac [--help] [--version]
+├── upgrade
 └── retell [--json]
 ```
+
+`vac upgrade` installs the latest stable `voice-agent-cli` release through the active npm installation and returns structured verification guidance.
 
 `src/providers/retell/register.ts` registers the current command groups:
 

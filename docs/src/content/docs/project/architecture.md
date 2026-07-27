@@ -12,10 +12,11 @@ process argv
 src/index.ts
     |
     v
-src/cli.ts  -> vac and provider registration
+src/cli.ts  -> vac, root commands, and provider registration
     |
-    v
-src/providers/retell/register.ts
+    +--> src/commands/upgrade.ts -> npm
+    |
+    +--> src/providers/retell/register.ts
     |
     v
 provider command -> provider service -> retell-sdk or explicit Retell path
@@ -28,12 +29,13 @@ JSON stdout or structured JSON stderr
 
 | Module                           | Owns                                                      | Excludes                                  |
 | -------------------------------- | --------------------------------------------------------- | ----------------------------------------- |
+| `src/commands/`                  | Provider-neutral user commands                            | Provider credentials and resources        |
 | `src/core/`                      | Generic JSON, numeric flag, pagination, and error helpers | Retell SDK imports and resource semantics |
 | `src/providers/retell/commands/` | Retell command registration and actions                   | Root provider selection                   |
 | `src/providers/retell/services/` | Config, SDK client, prompts, output, and Retell helpers   | Other providers                           |
 | `src/providers/retell/types/`    | Retell request and response types                         | Shared provider abstractions              |
 
-`src/architecture.test.ts` enforces the Retell SDK import boundary. `src/cli.test.ts` enforces `retell` as the only current root provider and checks every registered group.
+`src/architecture.test.ts` enforces the Retell SDK import boundary. `src/cli.test.ts` enforces `retell` as the only current provider, checks the provider-neutral upgrade command, and verifies every registered group.
 
 ## Request flow
 
