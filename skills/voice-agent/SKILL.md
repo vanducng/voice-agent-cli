@@ -33,15 +33,25 @@ Use `vac` as the canonical binary. Treat generated help and structured responses
 
 Do not assume every resource has symmetric CRUD commands or identical flags.
 
-## Authenticate without exposing secrets
+## Authenticate with saved login
 
-For automation, provide `RETELL_API_KEY` in the command environment. For interactive use, run `vac retell login` or `vac retell login --local`.
-
-The CLI does not load `.env` automatically. Never print, read back, or commit `.env` or saved configuration files. Verify access with a bounded read:
+Use the login-managed configuration as the default authentication path. Start with a bounded read:
 
 ```bash
 vac retell agents list --limit 1 --fields agent_id,agent_name
 ```
+
+If it fails with `NO_CONFIG`, ask the user to run this in their interactive terminal:
+
+```bash
+vac retell login
+```
+
+Login requires a TTY, prompts securely, and stores the key in `$XDG_CONFIG_HOME/voice-agent/config.json`, falling back to `~/.config/voice-agent/config.json`. After the user completes login, retry the bounded read. Do not run interactive login from a non-interactive agent shell, inspect `.env`, ask the user to expose a key, or read the saved configuration back.
+
+For `AUTH_ERROR`, check only credential-source presence, never values. If `RETELL_API_KEY` is set, ask the user to unset or replace it because it overrides saved credentials. Otherwise, if `./.voice-agent.json` exists, ask the user to refresh it with `vac retell login --local` or remove it after confirming directory scope because it overrides global login. If neither is present, ask the user to rerun `vac retell login` in their interactive terminal. Then retry the bounded read.
+
+Use `vac retell login --local` only when the user explicitly wants directory-scoped credentials. Use `RETELL_API_KEY` only for CI or another non-interactive environment where login cannot prompt. Never print, read back, or commit secrets or saved configuration files.
 
 ## Use the JSON contract
 
