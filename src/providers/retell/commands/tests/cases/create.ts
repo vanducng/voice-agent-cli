@@ -113,8 +113,25 @@ export async function createTestCaseCommand(
     }
 
     // Validate required fields
-    if (!input.name) {
+    if (typeof input.name !== "string" || input.name.length === 0) {
       outputError('Test case must have a "name" field', "INVALID_INPUT");
+      return;
+    }
+    if (
+      typeof input.user_prompt !== "string" ||
+      input.user_prompt.length === 0
+    ) {
+      outputError('Test case must have a "user_prompt" field', "INVALID_INPUT");
+      return;
+    }
+    if (
+      !Array.isArray(input.metrics) ||
+      !input.metrics.every((metric) => typeof metric === "string")
+    ) {
+      outputError(
+        'Test case must have a string-array "metrics" field',
+        "INVALID_INPUT",
+      );
       return;
     }
 
@@ -124,7 +141,6 @@ export async function createTestCaseCommand(
     const testCase = await createTestCaseDefinition({
       name: input.name,
       user_prompt: input.user_prompt,
-      scenario: input.scenario,
       metrics: input.metrics,
       response_engine: responseEngine,
       dynamic_variables: input.dynamic_variables,

@@ -67,8 +67,8 @@ export async function updateTestCaseCommand(
     const testCase = await updateTestCaseDefinition(testCaseDefinitionId, {
       name: input.name,
       user_prompt: input.user_prompt,
-      scenario: input.scenario,
       metrics: input.metrics,
+      response_engine: input.response_engine,
       dynamic_variables: input.dynamic_variables,
       tool_mocks: input.tool_mocks,
       llm_model: input.llm_model,

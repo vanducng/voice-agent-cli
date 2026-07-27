@@ -134,7 +134,7 @@ Examples:
     .description("Search transcripts with advanced filtering")
     .option(
       "--status <status>",
-      "Filter by call status (error, ended, ongoing)",
+      "Filter by call status (error, ended, ongoing, not_connected)",
     )
     .option("--agent-id <id>", "Filter by agent ID")
     .option(

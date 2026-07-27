@@ -36,10 +36,12 @@ if (result.error || result.status !== 0) {
 }
 
 const response = JSON.parse(result.stdout);
-const items = Array.isArray(response) ? response : response?.items;
+const items = response?.items;
 
 if (!Array.isArray(items)) {
-  throw new Error("Retell list response did not contain an items array");
+  throw new Error(
+    "Retell POST /v2/list-agents response did not contain the current items array",
+  );
 }
 
 console.log("Retell read-only smoke: PASS (authenticated agent summary shape)");

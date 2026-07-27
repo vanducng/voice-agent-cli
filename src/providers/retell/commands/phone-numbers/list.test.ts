@@ -95,7 +95,7 @@ describe("listPhoneNumbersCommand", () => {
 
       await listPhoneNumbersCommand();
 
-      expect(outputFormatter.outputJson).toHaveBeenCalledWith([]);
+      expect(outputFormatter.outputJson).toHaveBeenCalledWith({ items: [] });
     });
   });
 

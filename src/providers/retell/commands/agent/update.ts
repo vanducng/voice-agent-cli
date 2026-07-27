@@ -17,6 +17,7 @@ import {
   handleSdkError,
 } from "../../services/output-formatter";
 import type { UpdateAgentOptions } from "../../types/agent";
+import type { AgentUpdateParams } from "retell-sdk/resources/agent";
 
 /**
  * Validate file path to prevent path traversal attacks
@@ -119,10 +120,11 @@ export async function updateAgentCommand(
     }
 
     // Apply the update
-    const updatedAgent = await client.agent.update(
-      agentId,
-      updateParams as any,
-    );
+    const params = {
+      ...updateParams,
+      ...(options.version !== undefined ? { version: options.version } : {}),
+    } as AgentUpdateParams;
+    const updatedAgent = await client.agent.update(agentId, params);
 
     outputSuccess({
       message: "Agent updated successfully (draft version)",

@@ -2,97 +2,42 @@ export interface PaginatedResponse<T> {
   has_more?: boolean;
   items?: T[] | null;
   pagination_key?: string;
-  total?: number;
 }
 
 export interface PaginatedResult<T> {
   items: T[];
   has_more?: boolean;
   pagination_key?: string;
-  total?: number;
-}
-
-export type RecordLike = Record<string, unknown>;
-
-export function isRecord(value: unknown): value is RecordLike {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-export function normalizeListResponse(
-  response: unknown,
-  errorMessage: string,
-  candidateKeys: string[] = ["items"],
-): unknown[] {
-  if (Array.isArray(response)) {
-    return response;
-  }
-
-  if (!isRecord(response)) {
-    throw new Error(errorMessage);
-  }
-
-  for (const key of candidateKeys) {
-    const value = response[key];
-    if (Array.isArray(value)) {
-      return value;
-    }
-  }
-
-  for (const key of candidateKeys) {
-    const value = response[key];
-    if (!isRecord(value)) continue;
-
-    for (const nestedKey of candidateKeys) {
-      const nestedValue = value[nestedKey];
-      if (Array.isArray(nestedValue)) {
-        return nestedValue;
-      }
-    }
-  }
-
-  throw new Error(errorMessage);
 }
 
 export function getPaginatedItems<T>(
-  response: T[] | PaginatedResponse<T> | null | undefined,
+  response: PaginatedResponse<T>,
+  errorMessage = "Unexpected Retell list response: expected the current paginated items[] contract.",
 ): T[] {
-  if (Array.isArray(response)) return response;
-  if (Array.isArray(response?.items)) return response.items;
-  return [];
+  if (!response || !Array.isArray(response.items)) {
+    throw new Error(errorMessage);
+  }
+  return response.items;
 }
 
 export function withPaginationMetadata<T>(
-  response: unknown,
+  response: PaginatedResponse<unknown>,
   items: T[],
-): T[] | PaginatedResult<T> {
-  if (!response || Array.isArray(response) || typeof response !== "object") {
-    return items;
-  }
-
-  const page = response as PaginatedResponse<unknown>;
+): PaginatedResult<T> {
   const output: PaginatedResult<T> = { items };
-  let hasMetadata = false;
 
-  if (page.has_more !== undefined) {
-    output.has_more = page.has_more;
-    hasMetadata = true;
+  if (response.has_more !== undefined) {
+    output.has_more = response.has_more;
   }
-  if (page.pagination_key !== undefined) {
-    output.pagination_key = page.pagination_key;
-    hasMetadata = true;
+  if (response.pagination_key !== undefined) {
+    output.pagination_key = response.pagination_key;
   }
-  if (page.total !== undefined) {
-    output.total = page.total;
-    hasMetadata = true;
-  }
-
-  return hasMetadata ? output : items;
+  return output;
 }
 
 export function getPaginatedResult<T>(
-  response: T[] | PaginatedResponse<T> | null | undefined,
+  response: PaginatedResponse<T>,
 ): PaginatedResult<T> {
   const items = getPaginatedItems(response);
-  const output = withPaginationMetadata(response, items);
-  return Array.isArray(output) ? { items: output } : output;
+  return withPaginationMetadata(response, items);
 }

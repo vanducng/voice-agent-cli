@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { listAgentsCommand, normalizeAgentsResponse } from "./list";
+import { listAgentsCommand } from "./list";
 import * as retellClient from "../../services/retell-client";
 import * as outputFormatter from "../../services/output-formatter";
 
@@ -12,42 +12,6 @@ vi.mock("../../services/output-formatter", async () => {
     handleSdkError: vi.fn(),
     filterFields: vi.fn((data, _fields) => data),
   };
-});
-
-describe("normalizeAgentsResponse", () => {
-  const agents = [{ agent_id: "agent_1" }];
-
-  it("accepts a raw array response", () => {
-    expect(normalizeAgentsResponse(agents)).toBe(agents);
-  });
-
-  it("accepts an { agents: [...] } response", () => {
-    expect(normalizeAgentsResponse({ agents })).toBe(agents);
-  });
-
-  it("accepts a { data: [...] } response", () => {
-    expect(normalizeAgentsResponse({ data: agents })).toBe(agents);
-  });
-
-  it("accepts a paginated { items: [...] } response", () => {
-    expect(
-      normalizeAgentsResponse({
-        items: agents,
-        has_more: false,
-        pagination_key: null,
-      }),
-    ).toBe(agents);
-  });
-
-  it("accepts one-level nested list wrappers", () => {
-    expect(normalizeAgentsResponse({ data: { items: agents } })).toBe(agents);
-  });
-
-  it("throws on unknown response shapes", () => {
-    expect(() => normalizeAgentsResponse({ object: true })).toThrow(
-      "Unexpected agents list response shape",
-    );
-  });
 });
 
 describe("listAgentsCommand", () => {
@@ -129,16 +93,19 @@ describe("listAgentsCommand", () => {
     });
   });
 
-  it("handles missing response_engine defensively", async () => {
+  it("rejects retired response wrappers", async () => {
     mockClient.agent.list.mockResolvedValue({
       agents: [{ agent_id: "agent_3" }],
     });
 
     await listAgentsCommand();
 
-    expect(outputFormatter.outputJson).toHaveBeenCalledWith([
-      { agent_id: "agent_3" },
-    ]);
+    expect(outputFormatter.outputJson).not.toHaveBeenCalled();
+    expect(outputFormatter.handleSdkError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringContaining("POST /v2/list-agents"),
+      }),
+    );
   });
 
   it("handles API errors via handleSdkError", async () => {

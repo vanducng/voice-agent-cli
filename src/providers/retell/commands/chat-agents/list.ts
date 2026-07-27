@@ -9,7 +9,7 @@ import {
   filterFields,
 } from "../../services/output-formatter";
 import {
-  normalizeListResponse,
+  getPaginatedItems,
   withPaginationMetadata,
 } from "../../../../core/paginated-response";
 import { parseNumericFlag } from "../../../../core/numeric-flag";
@@ -24,14 +24,6 @@ const CHAT_AGENT_FILTER: Pick<ChatAgentListParams, "filter_criteria"> = {
     },
   },
 };
-
-function normalizeChatAgentsResponse(response: unknown): unknown[] {
-  return normalizeListResponse(
-    response,
-    "Unexpected chat agents list response shape: expected an array or paginated items[] response",
-    ["items"],
-  );
-}
 
 export interface ListChatAgentsOptions {
   limit?: string;
@@ -52,7 +44,10 @@ export async function listChatAgentsCommand(
     const client = getRetellClient();
     const response = await client.chatAgent.list(query);
 
-    const chatAgents = normalizeChatAgentsResponse(response);
+    const chatAgents = getPaginatedItems(
+      response,
+      "Unexpected chat agents list response: POST /v2/list-agents must return items[].",
+    );
     const items = options.fields
       ? filterFields(
           chatAgents,

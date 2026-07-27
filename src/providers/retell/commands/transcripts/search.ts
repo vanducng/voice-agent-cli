@@ -12,7 +12,6 @@ import {
   handleSdkError,
   filterFields,
 } from "../../services/output-formatter";
-import { getPaginatedItems } from "../../../../core/paginated-response";
 import type { CallListParams } from "retell-sdk/resources/call";
 import { z } from "zod";
 
@@ -42,23 +41,16 @@ const CallSchema = z
   .passthrough();
 
 const CallListSchema = z.array(CallSchema);
-
-function getCallItemsForValidation(response: unknown): unknown {
-  if (
-    Array.isArray(response) ||
-    (response &&
-      typeof response === "object" &&
-      Array.isArray((response as { items?: unknown }).items))
-  ) {
-    return getPaginatedItems(response as any);
-  }
-  return response;
-}
+const CallListPageSchema = z.object({
+  items: CallListSchema,
+  has_more: z.boolean().optional(),
+  pagination_key: z.string().optional(),
+});
 
 /**
  * Options for searching transcripts
  *
- * @property status - Filter by call status (error, ended, ongoing)
+ * @property status - Filter by call status (error, ended, ongoing, not_connected)
  * @property agentId - Filter by specific agent ID
  * @property since - Start date for filtering calls (YYYY-MM-DD or ISO 8601 format)
  * @property until - End date for filtering calls (YYYY-MM-DD or ISO 8601 format)
@@ -158,7 +150,7 @@ function validateSearchOptions(options: SearchOptions): {
   untilDate?: ParsedDate;
 } {
   // Validate status
-  const validStatuses = ["error", "ended", "ongoing"];
+  const validStatuses = ["error", "ended", "ongoing", "not_connected"];
   if (options.status && !validStatuses.includes(options.status)) {
     throw new ValidationError(
       `Invalid status: "${options.status}". Valid options: ${validStatuses.join(", ")}`,
@@ -277,7 +269,9 @@ async function searchTranscripts(
     filterCriteria.call_status = {
       op: "in",
       type: "enum",
-      value: [options.status as "error" | "ended" | "ongoing"],
+      value: [
+        options.status as "error" | "ended" | "ongoing" | "not_connected",
+      ],
     };
   }
 
@@ -299,11 +293,10 @@ async function searchTranscripts(
   }
 
   // Fetch from API (all filtering is done server-side!)
-  const response = await client.call.list(apiParams as any);
-  const responseItems = getCallItemsForValidation(response);
+  const response = await client.call.list(apiParams);
 
   // Validate response format with Zod
-  const validation = CallListSchema.safeParse(responseItems);
+  const validation = CallListPageSchema.safeParse(response);
 
   if (!validation.success) {
     outputError(
@@ -312,12 +305,9 @@ async function searchTranscripts(
     );
   }
 
-  const results = validation.data;
+  const results = validation.data.items;
   const requestedLimit = options.limit || DEFAULT_LIMIT;
-  const page =
-    response && typeof response === "object" && !Array.isArray(response)
-      ? (response as { has_more?: boolean; pagination_key?: string })
-      : {};
+  const page = validation.data;
 
   // Build result object
   const result = {

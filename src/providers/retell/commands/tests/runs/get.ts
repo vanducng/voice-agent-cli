@@ -22,15 +22,15 @@ export interface GetTestRunOptions {
 /**
  * Get a specific test run
  *
- * @param testRunId The test run ID
+ * @param testCaseJobId The test case job ID
  * @param options Command options
  */
 export async function getTestRunCommand(
-  testRunId: string,
+  testCaseJobId: string,
   options: GetTestRunOptions,
 ): Promise<void> {
   try {
-    const testRun = await getTestRun(testRunId);
+    const testRun = await getTestRun(testCaseJobId);
 
     if (options.fields) {
       const filtered = filterFields(

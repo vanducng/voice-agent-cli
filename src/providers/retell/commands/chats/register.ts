@@ -40,7 +40,7 @@ export function registerChatsCommands(program: Command): void {
     .command("list")
     .description("List chats")
     .option("-l, --limit <n>", "Maximum number to return")
-    .option("--pagination-key <key>", "Chat id to start from")
+    .option("--pagination-key <key>", "Opaque cursor from the previous page")
     .option("--sort-order <order>", "ascending or descending")
     .option("--fields <fields>", "Comma-separated list of fields to return")
     .action(async (options) => {

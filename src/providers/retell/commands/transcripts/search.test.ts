@@ -93,9 +93,9 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should accept valid status values", async () => {
-      mockClient.call.list.mockResolvedValue([]);
+      mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
-      const validStatuses = ["error", "ended", "ongoing"];
+      const validStatuses = ["error", "ended", "ongoing", "not_connected"];
       for (const status of validStatuses) {
         await searchTranscriptsCommand({ status });
         expect(mockClient.call.list).toHaveBeenCalled();
@@ -116,7 +116,7 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should accept valid date range", async () => {
-      mockClient.call.list.mockResolvedValue([]);
+      mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
       await searchTranscriptsCommand({
         since: "2025-11-01",
@@ -167,7 +167,7 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should accept limit values up to 1000", async () => {
-      mockClient.call.list.mockResolvedValue([]);
+      mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
       await searchTranscriptsCommand({ limit: 1000 });
       expect(mockClient.call.list).toHaveBeenCalled();
@@ -194,7 +194,7 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should accept ISO date formats", async () => {
-      mockClient.call.list.mockResolvedValue([]);
+      mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
       // YYYY-MM-DD format
       await searchTranscriptsCommand({ since: "2025-11-01" });
@@ -220,7 +220,7 @@ describe("searchTranscriptsCommand", () => {
 
   describe("API parameter construction", () => {
     it("should construct API params with status filter", async () => {
-      mockClient.call.list.mockResolvedValue([]);
+      mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
       await searchTranscriptsCommand({ status: "error" });
 
@@ -238,7 +238,7 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should construct API params with agent ID filter", async () => {
-      mockClient.call.list.mockResolvedValue([]);
+      mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
       await searchTranscriptsCommand({ agentId: "agent_123" });
 
@@ -252,7 +252,7 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should construct API params with date range filter", async () => {
-      mockClient.call.list.mockResolvedValue([]);
+      mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
       await searchTranscriptsCommand({
         since: "2025-11-01",
@@ -271,7 +271,7 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should construct API params with only since date", async () => {
-      mockClient.call.list.mockResolvedValue([]);
+      mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
       await searchTranscriptsCommand({ since: "2025-11-01" });
 
@@ -284,7 +284,7 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should construct API params with only until date", async () => {
-      mockClient.call.list.mockResolvedValue([]);
+      mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
       await searchTranscriptsCommand({ until: "2025-11-15" });
 
@@ -297,7 +297,7 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should construct API params with custom limit", async () => {
-      mockClient.call.list.mockResolvedValue([]);
+      mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
       await searchTranscriptsCommand({ limit: 100 });
 
@@ -308,7 +308,7 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should pass the pagination key", async () => {
-      mockClient.call.list.mockResolvedValue([]);
+      mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
       await searchTranscriptsCommand({ paginationKey: "current_page" });
 
@@ -320,7 +320,7 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should use default limit of 50 when not specified", async () => {
-      mockClient.call.list.mockResolvedValue([]);
+      mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
       await searchTranscriptsCommand({});
 
@@ -331,7 +331,7 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should construct API params with combined filters", async () => {
-      mockClient.call.list.mockResolvedValue([]);
+      mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
       await searchTranscriptsCommand({
         status: "error",
@@ -377,7 +377,10 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should return structured results with filters_applied", async () => {
-      mockClient.call.list.mockResolvedValue(mockCalls);
+      mockClient.call.list.mockResolvedValue({
+        items: mockCalls,
+        has_more: false,
+      });
 
       await searchTranscriptsCommand({
         status: "error",
@@ -395,7 +398,10 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should include all applied filters in filters_applied", async () => {
-      mockClient.call.list.mockResolvedValue(mockCalls);
+      mockClient.call.list.mockResolvedValue({
+        items: mockCalls,
+        has_more: false,
+      });
 
       await searchTranscriptsCommand({
         status: "error",
@@ -417,7 +423,10 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should return correct total_count", async () => {
-      mockClient.call.list.mockResolvedValue(mockCalls);
+      mockClient.call.list.mockResolvedValue({
+        items: mockCalls,
+        has_more: false,
+      });
 
       await searchTranscriptsCommand({});
 
@@ -430,7 +439,10 @@ describe("searchTranscriptsCommand", () => {
 
   describe("field selection integration", () => {
     it("should work with --fields option", async () => {
-      mockClient.call.list.mockResolvedValue(mockCalls);
+      mockClient.call.list.mockResolvedValue({
+        items: mockCalls,
+        has_more: false,
+      });
 
       await searchTranscriptsCommand({
         status: "error",
@@ -445,7 +457,10 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should apply field filtering to results but not metadata", async () => {
-      mockClient.call.list.mockResolvedValue(mockCalls);
+      mockClient.call.list.mockResolvedValue({
+        items: mockCalls,
+        has_more: false,
+      });
 
       await searchTranscriptsCommand({
         fields: "call_id,call_status",
@@ -461,7 +476,10 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should correctly filter fields in result objects", async () => {
-      mockClient.call.list.mockResolvedValue(mockCalls);
+      mockClient.call.list.mockResolvedValue({
+        items: mockCalls,
+        has_more: false,
+      });
 
       await searchTranscriptsCommand({
         fields: "call_id,call_status",
@@ -485,7 +503,7 @@ describe("searchTranscriptsCommand", () => {
 
   describe("edge cases", () => {
     it("should handle empty results gracefully", async () => {
-      mockClient.call.list.mockResolvedValue([]);
+      mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
       await searchTranscriptsCommand({
         status: "error",
@@ -528,7 +546,7 @@ describe("searchTranscriptsCommand", () => {
 
   describe("date parsing", () => {
     it("should parse YYYY-MM-DD format correctly", async () => {
-      mockClient.call.list.mockResolvedValue([]);
+      mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
       const dateString = "2025-11-01";
       await searchTranscriptsCommand({ since: dateString });
@@ -542,7 +560,7 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should parse full ISO 8601 format correctly", async () => {
-      mockClient.call.list.mockResolvedValue([]);
+      mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
       const dateString = "2025-11-01T10:30:00Z";
       await searchTranscriptsCommand({ since: dateString });
@@ -556,7 +574,7 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should accept ISO format with timezone offset", async () => {
-      mockClient.call.list.mockResolvedValue([]);
+      mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
       const dateString = "2025-11-01T10:30:00-05:00";
       await searchTranscriptsCommand({ since: dateString });
@@ -568,7 +586,7 @@ describe("searchTranscriptsCommand", () => {
     });
 
     it("should make until date inclusive through end of day when time is omitted", async () => {
-      mockClient.call.list.mockResolvedValue([]);
+      mockClient.call.list.mockResolvedValue({ items: [], has_more: false });
 
       await searchTranscriptsCommand({ until: "2025-11-15" });
 
@@ -581,7 +599,10 @@ describe("searchTranscriptsCommand", () => {
 
   describe("no filters scenario", () => {
     it("should work with no filters (list all)", async () => {
-      mockClient.call.list.mockResolvedValue(mockCalls);
+      mockClient.call.list.mockResolvedValue({
+        items: mockCalls,
+        has_more: false,
+      });
 
       await searchTranscriptsCommand({});
 

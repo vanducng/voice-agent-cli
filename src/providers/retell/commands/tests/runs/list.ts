@@ -54,7 +54,6 @@ export async function listTestRunsCommand(
       ...(testRunsPage.pagination_key !== undefined && {
         pagination_key: testRunsPage.pagination_key,
       }),
-      ...(testRunsPage.total !== undefined && { total: testRunsPage.total }),
     };
 
     if (options.fields) {

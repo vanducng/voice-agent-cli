@@ -19,7 +19,11 @@ describe("listChatAgentsCommand", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockClient = { chatAgent: { list: vi.fn().mockResolvedValue([]) } };
+    mockClient = {
+      chatAgent: {
+        list: vi.fn().mockResolvedValue({ items: [], has_more: false }),
+      },
+    };
     vi.mocked(retellClient.getRetellClient).mockReturnValue(mockClient);
   });
 
