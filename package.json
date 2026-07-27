@@ -1,66 +1,65 @@
 {
-  "name": "retell-cli",
-  "version": "1.9.3",
-  "description": "Community CLI for Retell AI - efficient access to transcripts, agents, and prompts for AI assistants without MCP overhead",
+  "name": "voice-agent-cli",
+  "version": "0.1.0",
+  "description": "Provider-neutral CLI for managing voice agents, calls, prompts, and related resources",
   "main": "dist/index.js",
   "bin": {
-    "retell": "dist/index.js"
+    "voice-agent": "dist/index.js",
+    "vac": "dist/index.js"
   },
   "files": [
     "dist",
     "README.md",
-    "CHANGELOG.md"
+    "LICENSE"
   ],
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --platform=node --target=node18 --outfile=dist/index.js --banner:js=\"#!/usr/bin/env node\" --external:readline --packages=external",
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node22 --outfile=dist/index.js --banner:js=\"#!/usr/bin/env node\" --external:readline --packages=external",
     "dev": "npm run build -- --watch",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:package": "npm run build && node scripts/smoke-package.mjs",
+    "test:live:retell": "npm run build && node scripts/smoke-retell.mjs",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
-    "retell",
-    "retell-ai",
-    "ai",
+    "voice-agent",
     "voice-ai",
     "cli",
-    "transcript",
-    "agent",
-    "llm",
-    "prompt-engineering",
-    "conversation-flow",
-    "voice-assistant",
-    "call-analysis",
-    "retell-sdk"
+    "ai-agents",
+    "conversational-ai",
+    "prompt-management",
+    "call-management"
   ],
-  "author": "awccom",
+  "author": "Duc Nguyen <me@vanducng.dev>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/awccom/retell-cli.git"
+    "url": "git+https://github.com/vanducng/voice-agent-cli.git"
   },
   "bugs": {
-    "url": "https://github.com/awccom/retell-cli/issues"
+    "url": "https://github.com/vanducng/voice-agent-cli/issues"
   },
-  "homepage": "https://github.com/awccom/retell-cli#readme",
+  "homepage": "https://github.com/vanducng/voice-agent-cli#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
-    "node": ">=18.10.0"
+    "node": ">=22"
   },
   "dependencies": {
     "commander": "^14.0.0",
-    "dotenv": "^17.0.0",
     "microdiff": "^1.5.0",
-    "retell-sdk": "^5.38.0",
+    "retell-sdk": "5.48.0",
     "zod": "^3.25.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@vitest/coverage-v8": "^4.0.0",
-    "esbuild": "^0.27.0",
+    "esbuild": "^0.28.1",
     "prettier": "^3.8.1",
     "tsx": "^4.21.0",
     "typescript": "^5.0.0",

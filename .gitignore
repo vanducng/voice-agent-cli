@@ -1,6 +1,5 @@
 # Dependencies
 node_modules/
-package-lock.json
 
 # Build output
 dist/
@@ -10,6 +9,8 @@ dist/
 .env
 .env.local
 .env.*.local
+.voice-agent.json
+.voice-agent/
 .retellrc.json
 
 # Testing
