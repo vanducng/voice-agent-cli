@@ -6,6 +6,7 @@
  */
 
 import { getRetellClient } from "../../services/retell-client";
+import { validateCurrentAgentPayload } from "../../services/agent-payload";
 import {
   outputJson,
   handleSdkError,
@@ -80,6 +81,11 @@ export async function createChatAgentCommand(
       params = { response_engine: responseEngine };
       if (options.name) params.agent_name = options.name;
     }
+
+    validateCurrentAgentPayload(
+      params as unknown as Record<string, unknown>,
+      "chat",
+    );
 
     const client = getRetellClient();
     const agent = await client.chatAgent.create(params);

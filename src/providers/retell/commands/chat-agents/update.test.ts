@@ -5,6 +5,7 @@ import { tmpdir } from "os";
 import { updateChatAgentCommand } from "./update";
 import * as retellClient from "../../services/retell-client";
 import * as outputFormatter from "../../services/output-formatter";
+import { RetellPayloadValidationError } from "../../services/agent-payload";
 
 vi.mock("../../services/retell-client");
 vi.mock("../../services/output-formatter", async () => {
@@ -55,5 +56,37 @@ describe("updateChatAgentCommand", () => {
       expect.objectContaining({ name: "ValidationError" }),
     );
     expect(mockClient.chatAgent.update).not.toHaveBeenCalled();
+  });
+
+  it("rejects deprecated file payloads before update", async () => {
+    writeFileSync(
+      tmpFile,
+      JSON.stringify({ analysis_user_sentiment_prompt: "Classify sentiment" }),
+    );
+
+    await updateChatAgentCommand("ca_1", { file: tmpFile });
+
+    expect(mockClient.chatAgent.update).not.toHaveBeenCalled();
+    expect(outputFormatter.handleSdkError).toHaveBeenCalledWith(
+      expect.any(RetellPayloadValidationError),
+    );
+  });
+
+  it("passes current analysis and locale fields unchanged", async () => {
+    const body = {
+      language: ["en-US", "es-ES"],
+      post_chat_analysis_data: [
+        {
+          type: "system-presets",
+          name: "chat_summary",
+          description: "Summarize",
+        },
+      ],
+    };
+    writeFileSync(tmpFile, JSON.stringify(body));
+
+    await updateChatAgentCommand("ca_1", { file: tmpFile });
+
+    expect(mockClient.chatAgent.update).toHaveBeenCalledWith("ca_1", body);
   });
 });

@@ -11,6 +11,7 @@
 
 import { readFileSync, existsSync } from "fs";
 import { getRetellClient } from "../../services/retell-client";
+import { validateCurrentAgentPayload } from "../../services/agent-payload";
 import {
   outputSuccess,
   outputError,
@@ -81,6 +82,8 @@ export async function updateAgentCommand(
       );
       return;
     }
+
+    validateCurrentAgentPayload(updateParams, "voice");
 
     // Handle dry-run mode
     if (options.dryRun) {

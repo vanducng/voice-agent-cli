@@ -7,6 +7,7 @@ import { chatCompleteCommand } from "./complete";
 import { createSmsChatCommand } from "./sms";
 import { endChatCommand } from "./end";
 import { deleteChatCommand } from "./delete";
+import { rerunChatAnalysisCommand } from "./rerun-analysis";
 
 export function registerChatsCommands(program: Command): void {
   const chats = program
@@ -103,6 +104,13 @@ export function registerChatsCommands(program: Command): void {
     .description("End an active chat session")
     .action(async (chatId) => {
       await endChatCommand(chatId);
+    });
+
+  chats
+    .command("rerun-analysis <chat_id>")
+    .description("Rerun post-chat analysis for a completed chat")
+    .action(async (chatId) => {
+      await rerunChatAnalysisCommand(chatId);
     });
 
   chats

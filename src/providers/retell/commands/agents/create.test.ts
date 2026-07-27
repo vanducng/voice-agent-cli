@@ -9,6 +9,7 @@ import { createAgentCommand } from "./create";
 import * as retellClient from "../../services/retell-client";
 import * as outputFormatter from "../../services/output-formatter";
 import * as fs from "fs";
+import { RetellPayloadValidationError } from "../../services/agent-payload";
 
 // Mock dependencies
 vi.mock("../../services/retell-client");
@@ -193,6 +194,52 @@ describe("createAgentCommand", () => {
         voice: "11labs-Adrian", // This should be ignored when file is provided
         file: "config.json",
       });
+
+      expect(mockClient.agent.create).toHaveBeenCalledWith(fileConfig);
+    });
+
+    it("rejects deprecated payloads before create", async () => {
+      vi.mocked(fs.readFileSync).mockReturnValue(
+        JSON.stringify({ analysis_summary_prompt: "Summarize" }),
+      );
+
+      await createAgentCommand({ voice: "ignored", file: "config.json" });
+
+      expect(mockClient.agent.create).not.toHaveBeenCalled();
+      expect(outputFormatter.handleSdkError).toHaveBeenCalledWith(
+        expect.any(RetellPayloadValidationError),
+      );
+    });
+
+    it.each([null, [], "invalid"])(
+      "rejects non-object file payload %j",
+      async (fileConfig) => {
+        vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify(fileConfig));
+
+        await createAgentCommand({ voice: "ignored", file: "config.json" });
+
+        expect(outputFormatter.outputError).toHaveBeenCalledWith(
+          "Config file must contain a JSON object with agent configuration fields",
+          "INVALID_FORMAT",
+        );
+        expect(mockClient.agent.create).not.toHaveBeenCalled();
+      },
+    );
+
+    it("passes current analysis and locale fields unchanged", async () => {
+      const fileConfig = {
+        language: ["en-US", "es-ES"],
+        post_call_analysis_data: [
+          {
+            type: "system-presets",
+            name: "call_summary",
+            description: "Summarize",
+          },
+        ],
+      };
+      vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify(fileConfig));
+
+      await createAgentCommand({ voice: "ignored", file: "config.json" });
 
       expect(mockClient.agent.create).toHaveBeenCalledWith(fileConfig);
     });

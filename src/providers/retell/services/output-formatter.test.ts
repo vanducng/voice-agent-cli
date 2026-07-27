@@ -13,6 +13,7 @@
 import Retell from "retell-sdk";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ReportedCliError } from "../../../core/cli-response";
+import { validateCurrentAgentPayload } from "./agent-payload";
 import { ConfigError } from "./config";
 import {
   filterFields,
@@ -476,6 +477,37 @@ describe("filterFields", () => {
 });
 
 describe("agent-friendly output", () => {
+  it.each([
+    ["voice" as const, "post_call_analysis_data", "call_summary"],
+    ["chat" as const, "post_chat_analysis_data", "chat_summary"],
+  ])(
+    "preserves current %s payload migration guidance",
+    (resource, field, preset) => {
+      const run = (): never => {
+        try {
+          validateCurrentAgentPayload(
+            { analysis_summary_prompt: "Summarize the interaction" },
+            resource,
+          );
+        } catch (error) {
+          handleSdkError(error);
+        }
+        throw new Error("Expected payload validation to fail");
+      };
+
+      const response = captureError(run);
+
+      expect(response.error).toMatchObject({
+        code: "DEPRECATED_RETELL_PAYLOAD",
+        retryable: false,
+      });
+      expect(response.error.next_steps).toEqual([
+        expect.stringContaining(field),
+      ]);
+      expect(response.error.next_steps[0]).toContain(`"name":"${preset}"`);
+    },
+  );
+
   it("formats validation errors as actionable JSON", () => {
     expect(
       captureError(() => outputError("Invalid value", "VALIDATION_ERROR")),

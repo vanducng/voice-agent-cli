@@ -103,6 +103,21 @@ try {
     ["retell", "--help"],
     temp,
   );
+  const callsHelp = run(
+    executable(prefix, "vac"),
+    ["retell", "calls", "--help"],
+    temp,
+  );
+  const chatsHelp = run(
+    executable(prefix, "vac"),
+    ["retell", "chats", "--help"],
+    temp,
+  );
+  const updateLiveHelp = run(
+    executable(prefix, "vac"),
+    ["retell", "calls", "update-live", "--help"],
+    temp,
+  );
 
   if (
     !vacRootHelp.includes("vac") ||
@@ -120,6 +135,23 @@ try {
     throw new Error(
       "installed Retell help is missing the provider description",
     );
+  }
+  if (
+    !callsHelp.includes("rerun-analysis <call_id>") ||
+    !chatsHelp.includes("rerun-analysis <chat_id>")
+  ) {
+    throw new Error("installed help is missing an analysis rerun command");
+  }
+  for (const flag of [
+    "--dynamic-variables",
+    "--metadata",
+    "--data-storage-setting",
+    "--additional-context",
+    "--trigger-response",
+  ]) {
+    if (!updateLiveHelp.includes(flag)) {
+      throw new Error(`installed Update Live Call help is missing ${flag}`);
+    }
   }
 
   const invalidVac = execute(
