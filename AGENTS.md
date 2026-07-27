@@ -4,7 +4,7 @@
 
 Voice Agent CLI is a provider-neutral TypeScript CLI. The npm package is `voice-agent-cli`; `vac` is the canonical binary and `voice-agent` is an equivalent alias. Retell is the first provider.
 
-Use [skills/voice-agent-cli/SKILL.md](skills/voice-agent-cli/SKILL.md) when operating the installed CLI or building agent automation around it.
+Use [skills/voice-agent/SKILL.md](skills/voice-agent/SKILL.md) when operating the installed CLI or building agent automation around it.
 
 ## Repository map
 

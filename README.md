@@ -44,7 +44,7 @@ The documentation site covers installation, the provider model, Retell compatibi
 - [Read the documentation](https://vanducng.github.io/voice-agent-cli/)
 - [Documentation source](./docs/src/content/docs/index.md)
 - [Build the docs locally](./docs/README.md)
-- [Agent skill](./skills/voice-agent-cli/SKILL.md)
+- [Agent skill](./skills/voice-agent/SKILL.md)
 
 ## Validate
 

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Voice Agent CLI"
-  short_description: "Operate voice agents with safe JSON workflows"
-  default_prompt: "Use $voice-agent-cli to inspect and manage voice-agent resources with safe, structured CLI workflows."

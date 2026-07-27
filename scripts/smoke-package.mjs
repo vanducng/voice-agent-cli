@@ -79,8 +79,8 @@ try {
   for (const path of [
     "AGENTS.md",
     "CLAUDE.md",
-    join("skills", "voice-agent-cli", "SKILL.md"),
-    join("skills", "voice-agent-cli", "agents", "openai.yaml"),
+    join("skills", "voice-agent", "SKILL.md"),
+    join("skills", "voice-agent", "agents", "openai.yaml"),
   ]) {
     if (!existsSync(join(packageRoot, path))) {
       throw new Error(`installed package is missing ${path}`);
