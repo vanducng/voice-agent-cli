@@ -20,7 +20,7 @@ Use the CLI as a JSON boundary:
 
 ## Bundled agent guidance
 
-The repository and npm package include `skills/voice-agent-cli/SKILL.md` for reusable agent workflows. Root `AGENTS.md` defines project development and release rules, while `CLAUDE.md` loads those same instructions for Claude Code.
+The repository and npm package include `skills/voice-agent/SKILL.md` for reusable agent workflows. Root `AGENTS.md` defines project development and release rules, while `CLAUDE.md` loads those same instructions for Claude Code.
 
 For mutation workflows, inspect before editing, use `--dry-run` where available, and publish drafts explicitly:
 

@@ -13,7 +13,7 @@ const claudeGuide = readFileSync(
   "utf8",
 );
 const agentSkill = readFileSync(
-  new URL("../skills/voice-agent-cli/SKILL.md", import.meta.url),
+  new URL("../skills/voice-agent/SKILL.md", import.meta.url),
   "utf8",
 );
 
@@ -78,8 +78,8 @@ describe("package metadata", () => {
   });
 
   it("ships agent guidance with a Claude entrypoint", () => {
-    expect(agentGuide).toContain("skills/voice-agent-cli/SKILL.md");
+    expect(agentGuide).toContain("skills/voice-agent/SKILL.md");
     expect(claudeGuide.trim()).toBe("@AGENTS.md");
-    expect(agentSkill).toMatch(/^---\nname: voice-agent-cli\n/);
+    expect(agentSkill).toMatch(/^---\nname: voice-agent\n/);
   });
 });

@@ -1,9 +1,9 @@
 ---
-name: voice-agent-cli
+name: voice-agent
 description: Operate Voice Agent CLI through the `vac` or `voice-agent` binary. Use when an agent needs to install or upgrade the CLI, authenticate a provider, discover commands, inspect or mutate Retell resources, automate JSON output, follow structured error recovery, or verify CLI behavior safely.
 ---
 
-# Voice Agent CLI
+# Voice Agent
 
 Use `vac` as the canonical binary. Treat generated help and structured responses as the runtime contract.
 
