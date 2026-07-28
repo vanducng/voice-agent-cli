@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/vanducng/voice-agent-cli/compare/v0.5.0...v0.6.0) (2026-07-28)
+
+
+### Features
+
+* **retell:** support tagged phone bindings ([#12](https://github.com/vanducng/voice-agent-cli/issues/12)) ([9e3b5b2](https://github.com/vanducng/voice-agent-cli/commit/9e3b5b2c083dc58086a39dc4031f9e1c069d053d))
+
 ## [0.5.0](https://github.com/vanducng/voice-agent-cli/compare/v0.4.0...v0.5.0) (2026-07-28)
 
 
