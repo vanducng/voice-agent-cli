@@ -1,5 +1,5 @@
 import { requireNonEmpty } from "../../../../core/flag-guards";
-import { parsePositiveIntegerFlag } from "../../../../core/numeric-flag";
+import { parseNumericFlag } from "../../../../core/numeric-flag";
 import { getRetellClient } from "../../services/retell-client";
 import {
   handleSdkError,
@@ -16,6 +16,11 @@ interface AgentTag {
 interface AgentRoot {
   agent_id: string;
   tags: Record<string, AgentTag>;
+}
+
+interface AgentRootSnapshot {
+  root: AgentRoot;
+  etag: string | null;
 }
 
 export interface AssignAgentTagOptions {
@@ -37,10 +42,11 @@ function updateAgentRootPath(agentId: string): string {
   return `/update-agent-root/${encodeURIComponent(agentId)}`;
 }
 
-async function getAgentRoot(agentId: string): Promise<AgentRoot> {
-  const root = (await getRetellClient().get(
-    agentRootPath(agentId),
-  )) as AgentRoot;
+async function getAgentRoot(agentId: string): Promise<AgentRootSnapshot> {
+  const { data, response } = await getRetellClient()
+    .get(agentRootPath(agentId))
+    .withResponse();
+  const root = data as AgentRoot;
   if (
     !root ||
     typeof root.agent_id !== "string" ||
@@ -53,7 +59,7 @@ async function getAgentRoot(agentId: string): Promise<AgentRoot> {
   ) {
     throw new Error("Retell returned an invalid agent root response");
   }
-  return root;
+  return { root, etag: response.headers.get("etag") };
 }
 
 function getExistingTag(root: AgentRoot, tag: string): AgentTag {
@@ -68,7 +74,7 @@ export async function getAgentTagsCommand(
   tag?: string,
 ): Promise<void> {
   try {
-    const root = await getAgentRoot(agentId);
+    const { root } = await getAgentRoot(agentId);
     if (tag === undefined) {
       outputJson({
         agent_id: root.agent_id,
@@ -107,17 +113,18 @@ export async function assignAgentTagCommand(
   try {
     const client = getRetellClient();
     const name = requireNonEmpty(tag, "tag");
-    const version = parsePositiveIntegerFlag(
-      options.agentVersion,
-      "--agent-version",
-    );
+    const version = parseNumericFlag(options.agentVersion, "--agent-version");
+    if (!Number.isSafeInteger(version) || version < 0) {
+      throwValidation("--agent-version must be a non-negative safe integer");
+    }
     const versions = await client.agent.getVersions(agentId);
     const target = versions.find((candidate) => candidate.version === version);
     if (!target) {
       throwValidation(`Version ${version} does not exist on agent ${agentId}`);
     }
 
-    const root = await getAgentRoot(agentId);
+    const initial = await getAgentRoot(agentId);
+    const root = initial.root;
     const current = getExistingTag(root, name);
     const result = {
       agent_id: root.agent_id,
@@ -136,18 +143,40 @@ export async function assignAgentTagCommand(
       return;
     }
 
-    const tags = Object.fromEntries(
-      Object.entries(root.tags).map(([tagName, value]) => [
-        tagName,
-        {
-          version: tagName === name ? version : (value.version ?? null),
-          dynamic_variables: value.dynamic_variables ?? {},
-        },
-      ]),
-    );
-    await client.patch(updateAgentRootPath(agentId), { body: { tags } });
+    let previousVersion: number | null | undefined;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const snapshot = attempt === 0 ? initial : await getAgentRoot(agentId);
+      const latest = getExistingTag(snapshot.root, name);
+      if (!snapshot.etag) {
+        throw new Error("Retell did not return an ETag for the agent root");
+      }
+      const tags = Object.fromEntries(
+        Object.entries(snapshot.root.tags).map(([tagName, value]) => [
+          tagName,
+          {
+            version: tagName === name ? version : (value.version ?? null),
+            dynamic_variables: value.dynamic_variables ?? {},
+          },
+        ]),
+      );
+      try {
+        await client.patch(updateAgentRootPath(agentId), {
+          body: { tags },
+          headers: { "If-Match": snapshot.etag },
+        });
+        previousVersion = latest.version ?? null;
+        break;
+      } catch (error) {
+        if ((error as { status?: number }).status !== 412 || attempt === 2) {
+          throw error;
+        }
+      }
+    }
+    if (previousVersion === undefined) {
+      throw new Error("Retell tag assignment did not complete");
+    }
 
-    const verified = await getAgentRoot(agentId);
+    const { root: verified } = await getAgentRoot(agentId);
     if ((getExistingTag(verified, name).version ?? null) !== version) {
       outputError(
         `Retell did not assign tag '${name}' to version ${version}`,
@@ -165,6 +194,7 @@ export async function assignAgentTagCommand(
       message: "Agent tag assigned",
       dry_run: false,
       ...result,
+      previous_version: previousVersion,
     });
   } catch (error) {
     handleSdkError(error);

@@ -48,6 +48,7 @@ The old endpoint names above are migration history only. They are not present in
 ## Current payload behavior
 
 - Phone number assignments use weighted `inbound_agents` and `outbound_agents` arrays. A single agent becomes a one-entry array with weight `1`.
+- Single-agent phone number assignments can include `agent_version` as a numeric version or environment tag through the paired `--inbound-agent-version` and `--outbound-agent-version` flags.
 - Multilingual agents use explicit locale arrays such as `["en-US", "es-ES"]`. The removed scalar `"multi"` value is not supported.
 - Voice and chat analysis use `post_call_analysis_data` and `post_chat_analysis_data`. Create and update commands reject `analysis_summary_prompt`, `analysis_successful_prompt`, and `analysis_user_sentiment_prompt` locally with `DEPRECATED_RETELL_PAYLOAD` and resource-specific system-preset replacement shapes.
 - Test case definitions use the SDK fields `name`, `user_prompt`, `metrics`, `response_engine`, `dynamic_variables`, `tool_mocks`, and `llm_model`.
@@ -61,6 +62,7 @@ The old endpoint names above are migration history only. They are not present in
 - [Unified publish endpoint migration](https://docs.retellai.com/deprecation-notice/2026/07-20_agent_version_endpoints)
 - [Update Call restriction and Update Live Call migration](https://docs.retellai.com/deprecation-notice/2026/08-31_update_call_ended_calls_only)
 - [Weighted phone number agent fields](https://docs.retellai.com/deprecation-notice/2026/03-31_phone_number_agent_fields)
+- [Current Update Phone Number API](https://docs.retellai.com/api-references/update-phone-number)
 - [Multilingual locale arrays](https://docs.retellai.com/deprecation-notice/2026/07-31_legacy_multilingual_setting)
 - [Current Update Live Call API](https://docs.retellai.com/api-references/update-live-call)
 - [Rerun Call Analysis API](https://docs.retellai.com/api-references/rerun-call-analysis)

@@ -10,6 +10,34 @@ export interface WeightedAgent {
   weight: number;
 }
 
+type AgentVersionReference = string | number;
+
+function parseAgentVersionReference(
+  value: string,
+  flagName: string,
+): AgentVersionReference {
+  const reference = value.trim();
+  if (reference === "") {
+    throwValidation(`${flagName} must not be empty`);
+  }
+  if (/^\d+$/.test(reference)) {
+    const version = Number(reference);
+    if (!Number.isSafeInteger(version)) {
+      throwValidation(`${flagName} must be a safe integer or valid tag`);
+    }
+    return version;
+  }
+  if (
+    /^v\d+$/.test(reference) ||
+    (reference !== "latest" &&
+      reference !== "latest_published" &&
+      !/^[a-z][a-z0-9_-]{0,19}$/.test(reference))
+  ) {
+    throwValidation(`${flagName} must be a numeric version or valid tag`);
+  }
+  return reference;
+}
+
 /**
  * Parse a weighted agents spec string into an array of { agent_id, weight }.
  *
@@ -75,7 +103,9 @@ export function parseWeightedAgents(spec: string): WeightedAgent[] {
 
 export interface WeightedAgentFlags {
   inboundAgent?: string;
+  inboundAgentVersion?: string;
   outboundAgent?: string;
+  outboundAgentVersion?: string;
   inboundAgents?: string;
   outboundAgents?: string;
   inboundSmsAgents?: string;
@@ -101,7 +131,9 @@ export function applyWeightedAgents(
 ): void {
   for (const [flagName, val] of [
     ["--inbound-agent", flags.inboundAgent],
+    ["--inbound-agent-version", flags.inboundAgentVersion],
     ["--outbound-agent", flags.outboundAgent],
+    ["--outbound-agent-version", flags.outboundAgentVersion],
     ["--inbound-agents", flags.inboundAgents],
     ["--outbound-agents", flags.outboundAgents],
     ["--inbound-sms-agents", flags.inboundSmsAgents],
@@ -122,6 +154,12 @@ export function applyWeightedAgents(
       "--outbound-agent and --outbound-agents are mutually exclusive. Use one or the other.",
     );
   }
+  if (flags.inboundAgentVersion !== undefined && !flags.inboundAgent) {
+    throwValidation("--inbound-agent-version requires --inbound-agent");
+  }
+  if (flags.outboundAgentVersion !== undefined && !flags.outboundAgent) {
+    throwValidation("--outbound-agent-version requires --outbound-agent");
+  }
   if (
     !options.allowSms &&
     (flags.inboundSmsAgents || flags.outboundSmsAgents)
@@ -130,13 +168,39 @@ export function applyWeightedAgents(
   }
 
   if (flags.inboundAgent) {
-    params.inbound_agents = [{ agent_id: flags.inboundAgent, weight: 1 }];
+    params.inbound_agents = [
+      {
+        agent_id: flags.inboundAgent,
+        weight: 1,
+        ...(flags.inboundAgentVersion !== undefined
+          ? {
+              agent_version: parseAgentVersionReference(
+                flags.inboundAgentVersion,
+                "--inbound-agent-version",
+              ),
+            }
+          : {}),
+      },
+    ];
   } else if (flags.inboundAgents) {
     params.inbound_agents = parseWeightedAgents(flags.inboundAgents);
   }
 
   if (flags.outboundAgent) {
-    params.outbound_agents = [{ agent_id: flags.outboundAgent, weight: 1 }];
+    params.outbound_agents = [
+      {
+        agent_id: flags.outboundAgent,
+        weight: 1,
+        ...(flags.outboundAgentVersion !== undefined
+          ? {
+              agent_version: parseAgentVersionReference(
+                flags.outboundAgentVersion,
+                "--outbound-agent-version",
+              ),
+            }
+          : {}),
+      },
+    ];
   } else if (flags.outboundAgents) {
     params.outbound_agents = parseWeightedAgents(flags.outboundAgents);
   }

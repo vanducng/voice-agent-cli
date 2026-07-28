@@ -182,8 +182,16 @@ Examples:
       "Single inbound agent (shorthand for weight 1)",
     )
     .option(
+      "--inbound-agent-version <version-or-tag>",
+      "Numeric version or environment tag for --inbound-agent",
+    )
+    .option(
       "--outbound-agent <id>",
       "Single outbound agent (shorthand for weight 1)",
+    )
+    .option(
+      "--outbound-agent-version <version-or-tag>",
+      "Numeric version or environment tag for --outbound-agent",
     )
     .option(
       "--inbound-agents <spec>",
@@ -201,6 +209,7 @@ Examples:
       `
 Examples:
   $ vac retell phone-numbers update +14157774444 --inbound-agent agent_new
+  $ vac retell phone-numbers update +14157774444 --inbound-agent agent_new --inbound-agent-version prod
   $ vac retell phone-numbers update +14157774444 --inbound-agents "a:0.7,b:0.3" --nickname Support
   $ vac retell phone-numbers update +14157774444 --fallback-number "" (clear)
     `,

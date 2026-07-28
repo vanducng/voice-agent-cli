@@ -120,6 +120,19 @@ describe("voice-agent CLI", () => {
         .find((command) => command.name() === "assign")!
         .options.map((option) => option.long),
     ).toEqual(["--agent-version", "--dry-run"]);
+
+    const phoneNumbers = provider.commands.find(
+      (command) => command.name() === "phone-numbers",
+    )!;
+    const updatePhoneNumber = phoneNumbers.commands.find(
+      (command) => command.name() === "update",
+    )!;
+    expect(updatePhoneNumber.options.map((option) => option.long)).toEqual(
+      expect.arrayContaining([
+        "--inbound-agent-version",
+        "--outbound-agent-version",
+      ]),
+    );
   });
 
   it("rejects former flat commands", async () => {

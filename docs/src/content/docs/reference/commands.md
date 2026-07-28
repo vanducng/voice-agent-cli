@@ -60,3 +60,13 @@ vac retell agents tags assign agent_123 prod --agent-version 4
 ```
 
 `assign` accepts an existing tag and agent version only. It preserves every other tag and all tag dynamic variables, then reads the tag again to verify the assignment. Moving a tag immediately changes traffic that resolves through that tag.
+
+Bind a phone-number direction to a numeric version or environment tag with the single-agent shorthand:
+
+```bash
+vac retell phone-numbers update +14157774444 \
+  --inbound-agent agent_123 \
+  --inbound-agent-version prod
+```
+
+`--inbound-agent-version` requires `--inbound-agent`; `--outbound-agent-version` similarly requires `--outbound-agent`. The single-agent shorthand writes one weighted binding with weight `1`. Retrieve the phone number before and after the mutation because `phone-numbers update` does not provide dry-run.
