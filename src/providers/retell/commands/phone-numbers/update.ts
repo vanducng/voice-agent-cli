@@ -20,7 +20,9 @@ const VALID_TRANSPORTS = ["TLS", "TCP", "UDP"] as const;
 export interface UpdatePhoneNumberOptions {
   nickname?: string;
   inboundAgent?: string;
+  inboundAgentVersion?: string;
   outboundAgent?: string;
+  outboundAgentVersion?: string;
   inboundAgents?: string;
   outboundAgents?: string;
   inboundSmsAgents?: string;
@@ -105,7 +107,9 @@ export async function updatePhoneNumberCommand(
       params as unknown as Record<string, unknown>,
       {
         inboundAgent: options.inboundAgent,
+        inboundAgentVersion: options.inboundAgentVersion,
         outboundAgent: options.outboundAgent,
+        outboundAgentVersion: options.outboundAgentVersion,
         inboundAgents: options.inboundAgents,
         outboundAgents: options.outboundAgents,
         inboundSmsAgents: options.inboundSmsAgents,

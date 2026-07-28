@@ -156,6 +156,58 @@ describe("applyWeightedAgents", () => {
     expect(params.inbound_agents).toEqual([{ agent_id: "agent_1", weight: 1 }]);
   });
 
+  it("writes numeric versions and tag references for single agents", () => {
+    const params: Record<string, unknown> = {};
+    applyWeightedAgents(params, {
+      inboundAgent: "agent_1",
+      inboundAgentVersion: "prod",
+      outboundAgent: "agent_1",
+      outboundAgentVersion: "0",
+    });
+    expect(params).toEqual({
+      inbound_agents: [
+        { agent_id: "agent_1", agent_version: "prod", weight: 1 },
+      ],
+      outbound_agents: [{ agent_id: "agent_1", agent_version: 0, weight: 1 }],
+    });
+  });
+
+  it("rejects version references without their single-agent flag", () => {
+    expect(() =>
+      applyWeightedAgents({}, { inboundAgentVersion: "prod" }),
+    ).toThrow("--inbound-agent-version requires --inbound-agent");
+    expect(() =>
+      applyWeightedAgents({}, { outboundAgentVersion: "prod" }),
+    ).toThrow("--outbound-agent-version requires --outbound-agent");
+  });
+
+  it("rejects invalid version references", () => {
+    expect(() =>
+      applyWeightedAgents(
+        {},
+        {
+          inboundAgent: "agent_1",
+          inboundAgentVersion: "Production",
+        },
+      ),
+    ).toThrow("--inbound-agent-version must be a numeric version or valid tag");
+
+    expect(() =>
+      applyWeightedAgents(
+        {},
+        { inboundAgent: "agent_1", inboundAgentVersion: "v3" },
+      ),
+    ).toThrow("--inbound-agent-version must be a numeric version or valid tag");
+    expect(() =>
+      applyWeightedAgents(
+        {},
+        { outboundAgent: "agent_1", outboundAgentVersion: "v12" },
+      ),
+    ).toThrow(
+      "--outbound-agent-version must be a numeric version or valid tag",
+    );
+  });
+
   it("writes outbound_agents from --outbound-agents spec", () => {
     const params: Record<string, unknown> = {};
     applyWeightedAgents(params, {
@@ -235,7 +287,9 @@ describe("applyWeightedAgents", () => {
   it("rejects empty-string single-agent flags as ValidationError", () => {
     for (const [flag, key] of [
       ["--inbound-agent", "inboundAgent"],
+      ["--inbound-agent-version", "inboundAgentVersion"],
       ["--outbound-agent", "outboundAgent"],
+      ["--outbound-agent-version", "outboundAgentVersion"],
       ["--inbound-agents", "inboundAgents"],
       ["--outbound-agents", "outboundAgents"],
       ["--inbound-sms-agents", "inboundSmsAgents"],

@@ -35,4 +35,14 @@ vac retell agents tags assign agent_123 prod --agent-version 4
 
 The assignment command requires an existing tag and version, preserves the complete tag map and dynamic variables, and verifies the selected tag after the update. Moving `prod` changes production traffic immediately.
 
+Phone-number bindings can resolve through a tag instead of a fixed numeric version:
+
+```bash
+vac retell phone-numbers update +14157774444 \
+  --inbound-agent agent_123 \
+  --inbound-agent-version prod
+```
+
+The paired outbound flags are `--outbound-agent` and `--outbound-agent-version`. Read the number before and after the update because replacing a single-agent binding is an immediate routing change.
+
 Read [API compatibility](./compatibility/) before updating the SDK or sending raw Retell payloads.

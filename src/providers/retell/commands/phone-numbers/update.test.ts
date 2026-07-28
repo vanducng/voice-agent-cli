@@ -141,6 +141,31 @@ describe("updatePhoneNumberCommand", () => {
     });
   });
 
+  it("binds single agents to environment tags", async () => {
+    await updatePhoneNumberCommand("+13159152613", {
+      inboundAgent: "agent_85fc2449ba54061f1c8d10e66b",
+      inboundAgentVersion: "prod",
+      outboundAgent: "agent_85fc2449ba54061f1c8d10e66b",
+      outboundAgentVersion: "staging",
+    });
+    expect(mockClient.phoneNumber.update).toHaveBeenCalledWith("+13159152613", {
+      inbound_agents: [
+        {
+          agent_id: "agent_85fc2449ba54061f1c8d10e66b",
+          agent_version: "prod",
+          weight: 1,
+        },
+      ],
+      outbound_agents: [
+        {
+          agent_id: "agent_85fc2449ba54061f1c8d10e66b",
+          agent_version: "staging",
+          weight: 1,
+        },
+      ],
+    });
+  });
+
   it("maps --outbound-agents weighted spec to outbound_agents", async () => {
     await updatePhoneNumberCommand("+14157774444", {
       outboundAgents: "agent_1:0.7,agent_2:0.3",

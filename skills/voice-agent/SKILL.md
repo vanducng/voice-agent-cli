@@ -121,6 +121,27 @@ vac retell agents tags get agent_123 prod
 
 The tag must already exist and the version must belong to the agent. Assigning a tag immediately switches dependent traffic, including production traffic for `prod`. The command preserves the other tags and all tag dynamic variables, then verifies the selected tag before returning success.
 
+### Bind a phone number to an environment tag
+
+Read the current number and tag before replacing a single-agent binding:
+
+```bash
+vac retell phone-numbers get +14157774444 --fields phone_number,inbound_agents,outbound_agents
+vac retell agents tags get agent_123 prod
+vac retell phone-numbers update --help
+```
+
+After explicit authorization, bind the inbound or outbound route and verify it with a fresh read:
+
+```bash
+vac retell phone-numbers update +14157774444 \
+  --inbound-agent agent_123 \
+  --inbound-agent-version prod
+vac retell phone-numbers get +14157774444 --fields phone_number,inbound_agents
+```
+
+Use `--outbound-agent-version` with `--outbound-agent` for outbound routing. Each version flag requires its matching single-agent flag and accepts a numeric version, `latest`, `latest_published`, or an existing environment tag. The single-agent shorthand replaces that direction with one entry at weight `1`.
+
 ### Update an ongoing call
 
 Retrieve the call and confirm it is ongoing before using `calls update-live`. The command accepts dynamic-variable overrides, metadata, data-storage settings, additional context, and an immediate response trigger:

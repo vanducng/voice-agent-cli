@@ -25,13 +25,23 @@ describe("agent tag commands", () => {
   };
   let client: any;
 
+  function response(data: unknown, etag = '"1"') {
+    return {
+      withResponse: vi.fn().mockResolvedValue({
+        data,
+        response: { headers: { get: vi.fn().mockReturnValue(etag) } },
+      }),
+    };
+  }
+
   beforeEach(() => {
     vi.clearAllMocks();
     client = {
-      get: vi.fn().mockResolvedValue(root),
+      get: vi.fn().mockReturnValue(response(root)),
       patch: vi.fn().mockResolvedValue({}),
       agent: {
         getVersions: vi.fn().mockResolvedValue([
+          { version: 0, is_published: true },
           { version: 2, is_published: true },
           { version: 3, is_published: false },
         ]),
@@ -68,11 +78,24 @@ describe("agent tag commands", () => {
     );
   });
 
-  it("preserves every tag and dynamic variable while assigning", async () => {
-    client.get.mockResolvedValueOnce(root).mockResolvedValueOnce({
-      ...root,
-      tags: { ...root.tags, prod: { ...root.tags.prod, version: 3 } },
+  it("accepts version zero", async () => {
+    await assignAgentTagCommand("agent_1", "prod", {
+      agentVersion: "0",
+      dryRun: true,
     });
+
+    expect(outputFormatter.outputSuccess).toHaveBeenCalledWith(
+      expect.objectContaining({ dry_run: true, tag: "prod", version: 0 }),
+    );
+  });
+
+  it("preserves every tag and dynamic variable while assigning", async () => {
+    client.get.mockReturnValueOnce(response(root)).mockReturnValueOnce(
+      response({
+        ...root,
+        tags: { ...root.tags, prod: { ...root.tags.prod, version: 3 } },
+      }),
+    );
 
     await assignAgentTagCommand("agent_1", "prod", { agentVersion: "3" });
 
@@ -84,9 +107,50 @@ describe("agent tag commands", () => {
           staging: { version: 3, dynamic_variables: { region: "ca" } },
         },
       },
+      headers: { "If-Match": '"1"' },
     });
     expect(outputFormatter.outputSuccess).toHaveBeenCalledWith(
       expect.objectContaining({ dry_run: false, tag: "prod", version: 3 }),
+    );
+  });
+
+  it("retries against the latest tag map after a concurrent update", async () => {
+    const concurrent = {
+      ...root,
+      tags: {
+        ...root.tags,
+        staging: { version: 2, dynamic_variables: { region: "mx" } },
+      },
+    };
+    const verified = {
+      ...concurrent,
+      tags: {
+        ...concurrent.tags,
+        prod: { ...concurrent.tags.prod, version: 3 },
+      },
+    };
+    client.get
+      .mockReturnValueOnce(response(root, '"1"'))
+      .mockReturnValueOnce(response(concurrent, '"2"'))
+      .mockReturnValueOnce(response(verified, '"3"'));
+    client.patch
+      .mockRejectedValueOnce({ status: 412 })
+      .mockResolvedValueOnce({});
+
+    await assignAgentTagCommand("agent_1", "prod", { agentVersion: "3" });
+
+    expect(client.patch).toHaveBeenNthCalledWith(
+      2,
+      "/update-agent-root/agent_1",
+      {
+        body: {
+          tags: {
+            prod: { version: 3, dynamic_variables: { region: "us" } },
+            staging: { version: 2, dynamic_variables: { region: "mx" } },
+          },
+        },
+        headers: { "If-Match": '"2"' },
+      },
     );
   });
 
