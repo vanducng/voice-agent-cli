@@ -102,6 +102,26 @@ describe("voice-agent CLI", () => {
     expect(loginHelp).toContain("./.voice-agent.json");
   });
 
+  it("registers agent tag inspection and assignment", () => {
+    const provider = createProgram().commands.find(
+      (command) => command.name() === "retell",
+    )!;
+    const agents = provider.commands.find(
+      (command) => command.name() === "agents",
+    )!;
+    const tags = agents.commands.find((command) => command.name() === "tags")!;
+
+    expect(tags.commands.map((command) => command.name())).toEqual([
+      "get",
+      "assign",
+    ]);
+    expect(
+      tags.commands
+        .find((command) => command.name() === "assign")!
+        .options.map((option) => option.long),
+    ).toEqual(["--agent-version", "--dry-run"]);
+  });
+
   it("rejects former flat commands", async () => {
     const program = createProgram();
     program.exitOverride();

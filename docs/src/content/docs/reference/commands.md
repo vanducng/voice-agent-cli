@@ -18,7 +18,7 @@ vac [--help] [--version]
 | Group             | Purpose                                                          |
 | ----------------- | ---------------------------------------------------------------- |
 | `login`           | Save Retell credentials                                          |
-| `agents`          | List, inspect, create, version, publish, and delete voice agents |
+| `agents`          | List, inspect, create, version, tag, publish, and delete voice agents |
 | `agent`           | Get or update full voice-agent configuration                     |
 | `agent-publish`   | Compatibility alias for publishing a voice-agent draft           |
 | `prompts`         | Pull, diff, and update prompt directories                        |
@@ -45,6 +45,18 @@ Generated help is the exact reference for subcommands, required arguments, and f
 vac retell --help
 vac retell agents --help
 vac retell agents list --help
+vac retell agents tags --help
 ```
 
 Most read commands expose `--fields <fields>` for comma-separated projection. JSON input flags either name a JSON file explicitly or state that they accept inline JSON and `@path` syntax. Do not assume those forms are interchangeable unless help lists them.
+
+Agent environment tags are managed under `agents tags`:
+
+```bash
+vac retell agents tags get agent_123
+vac retell agents tags get agent_123 prod
+vac retell agents tags assign agent_123 prod --agent-version 4 --dry-run
+vac retell agents tags assign agent_123 prod --agent-version 4
+```
+
+`assign` accepts an existing tag and agent version only. It preserves every other tag and all tag dynamic variables, then reads the tag again to verify the assignment. Moving a tag immediately changes traffic that resolves through that tag.

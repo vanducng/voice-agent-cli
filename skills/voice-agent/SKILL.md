@@ -102,6 +102,25 @@ vac retell agents publish agent_123 --version 4
 
 Publishing is a separate action. Pass an explicit draft version when it is known.
 
+### Assign an environment tag
+
+Read the current tag and available versions before assigning it:
+
+```bash
+vac retell agents tags get agent_123 prod
+vac retell agents versions agent_123 --fields version,is_published
+vac retell agents tags assign agent_123 prod --agent-version 4 --dry-run
+```
+
+Assign only after the user explicitly authorizes moving that tag, then verify it with a fresh read:
+
+```bash
+vac retell agents tags assign agent_123 prod --agent-version 4
+vac retell agents tags get agent_123 prod
+```
+
+The tag must already exist and the version must belong to the agent. Assigning a tag immediately switches dependent traffic, including production traffic for `prod`. The command preserves the other tags and all tag dynamic variables, then verifies the selected tag before returning success.
+
 ### Update an ongoing call
 
 Retrieve the call and confirm it is ongoing before using `calls update-live`. The command accepts dynamic-variable overrides, metadata, data-storage settings, additional context, and an immediate response trigger:
