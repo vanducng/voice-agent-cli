@@ -3,7 +3,7 @@ title: Retell API compatibility
 description: Current Retell SDK, endpoint, and payload compatibility
 ---
 
-This page records the verified Retell contract as of 2026-07-27. The package pins `retell-sdk` to exactly `5.48.0`, the latest npm release on that date.
+This page records the verified Retell contract as of 2026-07-28. The package pins `retell-sdk` to exactly `5.48.0`.
 
 The CLI calls only current endpoints. It requires the current paginated response envelope with `items` and preserves optional `pagination_key` and `has_more` metadata. Legacy arrays and wrapper objects are rejected with an explicit contract error.
 
@@ -23,11 +23,13 @@ The CLI calls only current endpoints. It requires the current paginated response
 | Test case definitions list | `GET /v2/list-test-case-definitions` | `client.tests.listTestCaseDefinitions()` |
 | Test runs list | `GET /v2/list-test-runs/{test_case_batch_job_id}` | `client.tests.listTestRuns()` |
 | Agent publish | `POST /publish-agent-version/{agent_id}` with an explicit version | `client.agent.publish()` or `client.chatAgent.publish()` |
+| Agent tags read | `GET /get-agent-root/{agent_id}` | Generic SDK `get()` with the current path |
+| Agent tag assignment | `PATCH /update-agent-root/{agent_id}` with the complete tag map | Generic SDK `patch()` with the current path |
 | Live call override | `PATCH /v2/update-live-call/{call_id}` | Generic SDK `patch()` with the current path |
 | Call analysis rerun | `PUT /rerun-call-analysis/{call_id}` | Generic SDK `put()` with automatic retries disabled |
 | Chat analysis rerun | `PUT /rerun-chat-analysis/{chat_id}` | Generic SDK `put()` with automatic retries disabled |
 
-`retell-sdk` 5.48.0 does not expose generated helpers for Update Live Call or analysis reruns, so these commands use the SDK's generic request client. `calls update-live` supports `override_dynamic_variables`, `metadata`, `data_storage_setting`, `additional_context`, and `trigger_response`, and returns the API's `{ "success": true }` response.
+`retell-sdk` 5.48.0 does not expose generated helpers for agent tags, Update Live Call, or analysis reruns, so these commands use the SDK's generic request client. Tag assignment validates that the tag and version exist, sends the complete current tag map with dynamic variables preserved, and verifies the selected tag with a final read. `calls update-live` supports `override_dynamic_variables`, `metadata`, `data_storage_setting`, `additional_context`, and `trigger_response`, and returns the API's `{ "success": true }` response.
 
 ## Removed legacy contracts
 

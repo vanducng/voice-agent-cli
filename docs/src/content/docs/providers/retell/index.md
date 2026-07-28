@@ -23,6 +23,16 @@ vac retell --help
 vac retell phone-numbers --help
 ```
 
-Most commands use the SDK client in `src/providers/retell/services/retell-client.ts`. The live-call update uses the same authenticated client with an explicit Retell HTTP path because the required operation is not exposed through the pinned SDK's resource helper.
+Most commands use the SDK client in `src/providers/retell/services/retell-client.ts`. Live-call updates and agent environment tags use the same authenticated client with explicit Retell HTTP paths because those operations are not exposed through the pinned SDK's resource helpers.
+
+Inspect and assign environment tags through the agent namespace:
+
+```bash
+vac retell agents tags get agent_123 prod
+vac retell agents tags assign agent_123 prod --agent-version 4 --dry-run
+vac retell agents tags assign agent_123 prod --agent-version 4
+```
+
+The assignment command requires an existing tag and version, preserves the complete tag map and dynamic variables, and verifies the selected tag after the update. Moving `prod` changes production traffic immediately.
 
 Read [API compatibility](./compatibility/) before updating the SDK or sending raw Retell payloads.

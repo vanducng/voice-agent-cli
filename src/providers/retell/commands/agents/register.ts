@@ -8,6 +8,7 @@ import { createAgentVersionCommand } from "./create-version";
 import { deleteAgentVersionCommand } from "./delete-version";
 import { publishAgentCommand } from "../agent/publish";
 import { agentMcpToolsCommand } from "./mcp-tools";
+import { assignAgentTagCommand, getAgentTagsCommand } from "./tags";
 import { parseFlagOrExit } from "../register-flags";
 import { outputError } from "../../services/output-formatter";
 
@@ -170,5 +171,25 @@ Examples:
     .option("--fields <fields>", "Comma-separated list of fields to return")
     .action(async (agentId, options) => {
       await agentMcpToolsCommand(agentId, options);
+    });
+
+  const tags = agents
+    .command("tags")
+    .description("Inspect and assign agent environment tags");
+
+  tags
+    .command("get <agent_id> [tag]")
+    .description("Get all tags or one tag on an agent")
+    .action(async (agentId, tag) => {
+      await getAgentTagsCommand(agentId, tag);
+    });
+
+  tags
+    .command("assign <agent_id> <tag>")
+    .description("Assign an existing tag to an agent version")
+    .requiredOption("--agent-version <n>", "Agent version to assign")
+    .option("--dry-run", "Preview the assignment without changing the tag")
+    .action(async (agentId, tag, options) => {
+      await assignAgentTagCommand(agentId, tag, options);
     });
 }
