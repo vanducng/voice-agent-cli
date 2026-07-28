@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/vanducng/voice-agent-cli/compare/v0.4.0...v0.5.0) (2026-07-28)
+
+
+### Features
+
+* **retell:** support agent environment tags ([#10](https://github.com/vanducng/voice-agent-cli/issues/10)) ([8bd68c8](https://github.com/vanducng/voice-agent-cli/commit/8bd68c86f2be93f18b558ac597d7e4f75e3e87f6))
+
 ## [0.4.0](https://github.com/vanducng/voice-agent-cli/compare/v0.3.0...v0.4.0) (2026-07-27)
 
 
