@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.1](https://github.com/vanducng/voice-agent-cli/compare/v0.6.0...v0.6.1) (2026-07-29)
+
+
+### Bug Fixes
+
+* **release:** auto-merge green release PRs ([#14](https://github.com/vanducng/voice-agent-cli/issues/14)) ([6b79b1c](https://github.com/vanducng/voice-agent-cli/commit/6b79b1cd884eab0147d199064d026d621f4380a7))
+* **release:** resolve generated PR without search ([#16](https://github.com/vanducng/voice-agent-cli/issues/16)) ([fac56a7](https://github.com/vanducng/voice-agent-cli/commit/fac56a75acf6c752f4a8fe60a5c18050bed6f016))
+
 ## [0.6.0](https://github.com/vanducng/voice-agent-cli/compare/v0.5.0...v0.6.0) (2026-07-28)
 
 
