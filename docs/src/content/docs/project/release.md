@@ -20,7 +20,7 @@ The repository uses a protected GitHub environment named `npm` and an npm Truste
 
 Do not store a long-lived npm token for regular releases. The publish job in `.github/workflows/publish.yml` requests `id-token: write` only inside the protected `npm` environment.
 
-Store the MiuMun GitHub App credentials as repository secrets named `GH_APP_ID` and `GH_APP_MUNMIU_PRIVATE_KEY`. The short-lived installation token lets generated release PR checks run unattended and lets their merge trigger the next release workflow run.
+Store the MiuMun GitHub App credentials as repository secrets named `GH_APP_CLIENT_ID` and `GH_APP_MUNMIU_PRIVATE_KEY`. The short-lived installation token lets generated release PR checks run unattended and lets their merge trigger the next release workflow run.
 
 See npm's official [Trusted Publishers](https://docs.npmjs.com/trusted-publishers/) and GitHub's [OIDC](https://docs.github.com/en/actions/concepts/security/openid-connect) documentation for the account-side configuration.
 

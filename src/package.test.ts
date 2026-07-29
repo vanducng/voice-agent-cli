@@ -92,8 +92,15 @@ describe("package metadata", () => {
       "actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1",
     );
     expect(publishWorkflow).toContain(
+      "client-id: ${{ secrets.GH_APP_CLIENT_ID }}",
+    );
+    expect(publishWorkflow).toContain(
       "token: ${{ steps.app_token.outputs.token }}",
     );
+    expect(publishWorkflow).toContain(
+      "RELEASE_PR: ${{ steps.release.outputs.pr }}",
+    );
+    expect(publishWorkflow).not.toContain("gh pr list");
     expect(publishWorkflow).toContain('gh pr checks "${PR_NUMBER}"');
     expect(publishWorkflow).toContain("REQUIRED_CHECKS=0");
     expect(publishWorkflow).toContain('.state != "SUCCESS"');
