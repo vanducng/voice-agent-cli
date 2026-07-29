@@ -47,4 +47,4 @@ When `.env` is available, run `npm run test:live:retell`. It is read-only and mu
 
 ## Release
 
-Use Conventional Commits for release intent. Release Please opens the version and changelog PR; do not edit package versions, release tags, or `CHANGELOG.md` manually. Before `1.0.0`, breaking command or JSON contract changes produce a minor release. Merging the release PR creates the tag and GitHub Release, then the same workflow validates and publishes through npm OIDC.
+Use Conventional Commits for release intent. Release Please opens the version and changelog PR; do not edit package versions, release tags, or `CHANGELOG.md` manually. Before `1.0.0`, breaking command or JSON contract changes produce a minor release. The release workflow waits for the generated PR's CI, squash-merges it with the MiuMun GitHub App, creates the tag and GitHub Release, then validates and publishes through npm OIDC.
