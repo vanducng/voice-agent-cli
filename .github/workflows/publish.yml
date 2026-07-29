@@ -22,12 +22,77 @@ jobs:
       tag_name: ${{ steps.release.outputs.tag_name }}
       version: ${{ steps.release.outputs.version }}
     steps:
+      - name: Generate MiuMun app token
+        id: app_token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_MUNMIU_PRIVATE_KEY }}
+
       - name: Open or update release PR
         id: release
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7
         with:
+          token: ${{ steps.app_token.outputs.token }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+      - name: Resolve release PR
+        id: release-pr
+        if: steps.release.outputs.release_created != 'true'
+        env:
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
+        run: |
+          PR_NUMBER="$(gh pr list \
+            --repo "${GITHUB_REPOSITORY}" \
+            --base main \
+            --state open \
+            --label "autorelease: pending" \
+            --json number,headRefName \
+            --jq '[.[] | select(.headRefName | startswith("release-please--"))] | if length == 1 then .[0].number else empty end')"
+          if [ -n "${PR_NUMBER}" ]; then
+            echo "number=${PR_NUMBER}" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Merge green release PR
+        if: steps.release-pr.outputs.number
+        env:
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
+          PR_NUMBER: ${{ steps.release-pr.outputs.number }}
+        run: |
+          set -euo pipefail
+          HEAD_SHA="$(gh pr view "${PR_NUMBER}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --json headRefOid \
+            --jq '.headRefOid')"
+          for _ in {1..60}; do
+            if ! REQUIRED_CHECKS="$(gh pr checks "${PR_NUMBER}" \
+                --repo "${GITHUB_REPOSITORY}" \
+                --json name \
+                --jq '[.[] | select(.name == "test (22)" or .name == "test (24)")] | unique_by(.name) | length' \
+                2>/dev/null)"; then
+              REQUIRED_CHECKS=0
+            fi
+            if [ "${REQUIRED_CHECKS}" -eq 2 ]; then
+              gh pr checks "${PR_NUMBER}" --repo "${GITHUB_REPOSITORY}" --watch --fail-fast
+              FAILED_CHECKS="$(gh pr checks "${PR_NUMBER}" \
+                --repo "${GITHUB_REPOSITORY}" \
+                --json name,state \
+                --jq '[.[] | select((.name == "test (22)" or .name == "test (24)") and .state != "SUCCESS")] | length')"
+              if [ "${FAILED_CHECKS}" -ne 0 ]; then
+                echo "Release PR required checks did not pass." >&2
+                exit 1
+              fi
+              gh pr merge "${PR_NUMBER}" \
+                --repo "${GITHUB_REPOSITORY}" \
+                --squash \
+                --match-head-commit "${HEAD_SHA}"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Release PR checks were not registered within two minutes." >&2
+          exit 1
 
   validate:
     needs: release-please

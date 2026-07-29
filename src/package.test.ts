@@ -16,6 +16,10 @@ const agentSkill = readFileSync(
   new URL("../skills/voice-agent/SKILL.md", import.meta.url),
   "utf8",
 );
+const publishWorkflow = readFileSync(
+  new URL("../.github/workflows/publish.yml", import.meta.url),
+  "utf8",
+);
 
 describe("package metadata", () => {
   it("publishes the voice-agent-cli identity", () => {
@@ -81,5 +85,18 @@ describe("package metadata", () => {
     expect(agentGuide).toContain("skills/voice-agent/SKILL.md");
     expect(claudeGuide.trim()).toBe("@AGENTS.md");
     expect(agentSkill).toMatch(/^---\nname: voice-agent\n/);
+  });
+
+  it("auto-merges generated releases only after CI", () => {
+    expect(publishWorkflow).toContain(
+      "actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1",
+    );
+    expect(publishWorkflow).toContain(
+      "token: ${{ steps.app_token.outputs.token }}",
+    );
+    expect(publishWorkflow).toContain('gh pr checks "${PR_NUMBER}"');
+    expect(publishWorkflow).toContain("REQUIRED_CHECKS=0");
+    expect(publishWorkflow).toContain('.state != "SUCCESS"');
+    expect(publishWorkflow).toContain('--match-head-commit "${HEAD_SHA}"');
   });
 });

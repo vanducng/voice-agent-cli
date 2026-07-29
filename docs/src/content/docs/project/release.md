@@ -20,7 +20,7 @@ The repository uses a protected GitHub environment named `npm` and an npm Truste
 
 Do not store a long-lived npm token for regular releases. The publish job in `.github/workflows/publish.yml` requests `id-token: write` only inside the protected `npm` environment.
 
-Under GitHub **Settings > Actions > General > Workflow permissions**, enable **Allow GitHub Actions to create and approve pull requests** so the default workflow token can maintain the Release Please PR.
+Store the MiuMun GitHub App credentials as repository secrets named `GH_APP_ID` and `GH_APP_MUNMIU_PRIVATE_KEY`. The short-lived installation token lets generated release PR checks run unattended and lets their merge trigger the next release workflow run.
 
 See npm's official [Trusted Publishers](https://docs.npmjs.com/trusted-publishers/) and GitHub's [OIDC](https://docs.github.com/en/actions/concepts/security/openid-connect) documentation for the account-side configuration.
 
@@ -45,11 +45,11 @@ Do not run `npm version`, edit `CHANGELOG.md`, or push release tags manually. Re
 
 1. Merge feature and fix PRs into `main` with Conventional Commit squash titles.
 2. Release Please opens or updates one release PR with the calculated version and generated changelog.
-3. Review and merge the release PR.
-4. Release Please creates the matching tag and GitHub Release.
-5. The same workflow validates, packs, publishes through npm OIDC, and verifies the npm registry version.
+3. CI runs on the generated PR; the release workflow waits for the Node 22 and Node 24 checks, then squash-merges it with the MiuMun GitHub App.
+4. The App-authenticated merge triggers the workflow again, and Release Please creates the matching tag and GitHub Release.
+5. The same run validates, packs, publishes through npm OIDC, and verifies the npm registry version.
 
-Publication stays in the same workflow run because tags created with GitHub's default workflow token do not start another workflow. The release PR remains a human-reviewed merge. Its pull request workflows enter an approval-required state until a maintainer starts them; unattended CI or auto-merge would require a GitHub App token. No repository secret or long-lived npm token is required for the manual flow.
+Publication stays in the same workflow run that creates the release because action-created tags do not start another workflow. The GitHub App credentials are release-orchestration secrets only; npm publication continues to use short-lived OIDC credentials.
 
 ## Release gate
 
