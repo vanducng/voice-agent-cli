@@ -33,18 +33,18 @@ describe("publishChatAgentCommand", () => {
 
   it("publishes the explicit chat agent version", async () => {
     await publishChatAgentCommand("ca_1", {
-      version: "4",
+      version: "0",
       description: "Release copy",
     });
     expect(mockClient.chatAgent.publish).toHaveBeenCalledWith("ca_1", {
-      version: 4,
+      version: 0,
       version_description: "Release copy",
     });
     expect(outputFormatter.outputSuccess).toHaveBeenCalledWith(
       expect.objectContaining({
         agent_id: "ca_1",
         operation: "publish",
-        version: 4,
+        version: 0,
       }),
     );
   });
@@ -71,9 +71,19 @@ describe("publishChatAgentCommand", () => {
     );
   });
 
-  it("routes SDK errors through handleSdkError", async () => {
+  it("reconciles a publish error when the target version is published", async () => {
     mockClient.chatAgent.publish.mockRejectedValue(new Error("api"));
     await publishChatAgentCommand("ca_1", { version: "1" });
-    expect(outputFormatter.handleSdkError).toHaveBeenCalled();
+    expect(outputFormatter.outputSuccess).toHaveBeenCalledWith(
+      expect.objectContaining({ version: 1, reconciled: true }),
+    );
+    expect(outputFormatter.handleSdkError).not.toHaveBeenCalled();
+  });
+
+  it("routes unconfirmed SDK errors through handleSdkError", async () => {
+    const error = new Error("api");
+    mockClient.chatAgent.publish.mockRejectedValue(error);
+    await publishChatAgentCommand("ca_1", { version: "4" });
+    expect(outputFormatter.handleSdkError).toHaveBeenCalledWith(error);
   });
 });

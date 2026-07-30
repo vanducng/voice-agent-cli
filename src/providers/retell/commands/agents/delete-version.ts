@@ -1,6 +1,6 @@
 import { getRetellClient } from "../../services/retell-client";
 import { outputSuccess, handleSdkError } from "../../services/output-formatter";
-import { parsePositiveIntegerFlag } from "../../../../core/numeric-flag";
+import { parseNonNegativeIntegerFlag } from "../../../../core/numeric-flag";
 
 export interface DeleteAgentVersionOptions {
   version: string;
@@ -11,7 +11,7 @@ export async function deleteAgentVersionCommand(
   options: DeleteAgentVersionOptions,
 ): Promise<void> {
   try {
-    const version = parsePositiveIntegerFlag(options.version, "--version");
+    const version = parseNonNegativeIntegerFlag(options.version, "--version");
     const client = getRetellClient();
     await client.agent.deleteVersion(agentId, { version });
 

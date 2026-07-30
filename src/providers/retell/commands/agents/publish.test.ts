@@ -40,19 +40,19 @@ describe("publishAgentCommand", () => {
 
   it("publishes the explicit agent version", async () => {
     await publishAgentCommand("agent_1", {
-      version: "4",
+      version: "0",
       description: "Release copy",
     });
 
     expect(mockClient.agent.publish).toHaveBeenCalledWith("agent_1", {
-      version: 4,
+      version: 0,
       version_description: "Release copy",
     });
     expect(outputFormatter.outputSuccess).toHaveBeenCalledWith(
       expect.objectContaining({
         agent_id: "agent_1",
         operation: "publish",
-        version: 4,
+        version: 0,
       }),
     );
   });
@@ -65,6 +65,33 @@ describe("publishAgentCommand", () => {
     expect(mockClient.agent.retrieve).not.toHaveBeenCalled();
     expect(outputFormatter.outputSuccess).toHaveBeenCalled();
     expect(outputFormatter.handleSdkError).not.toHaveBeenCalled();
+  });
+
+  it("reconciles a publish error when the target version is published", async () => {
+    mockClient.agent.publish.mockRejectedValue(new SyntaxError("empty body"));
+    mockClient.agent.getVersions.mockResolvedValue([
+      { version: 4, is_published: true },
+    ]);
+
+    await publishAgentCommand("agent_1", { version: "4" });
+
+    expect(outputFormatter.outputSuccess).toHaveBeenCalledWith(
+      expect.objectContaining({ version: 4, reconciled: true }),
+    );
+    expect(outputFormatter.handleSdkError).not.toHaveBeenCalled();
+  });
+
+  it("reports the publish error when reconciliation does not confirm it", async () => {
+    const error = new SyntaxError("empty body");
+    mockClient.agent.publish.mockRejectedValue(error);
+    mockClient.agent.getVersions.mockResolvedValue([
+      { version: 4, is_published: false },
+    ]);
+
+    await publishAgentCommand("agent_1", { version: "4" });
+
+    expect(outputFormatter.outputSuccess).not.toHaveBeenCalled();
+    expect(outputFormatter.handleSdkError).toHaveBeenCalledWith(error);
   });
 
   it("auto-selects the newest unpublished version", async () => {

@@ -14,6 +14,7 @@ export function createProgram(): Command {
     .name("vac")
     .description("Manage voice agents across providers")
     .version(version, "-v, --version", "Display version number")
+    .enablePositionalOptions()
     .helpOption("-h, --help", "Display help for command");
 
   registerUpgradeCommand(program, version);

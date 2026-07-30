@@ -6,6 +6,7 @@
  */
 
 import { readFileSync, existsSync } from "fs";
+import { randomUUID } from "node:crypto";
 import { getRetellClient } from "../../services/retell-client";
 import {
   resolveToolsSource,
@@ -86,6 +87,18 @@ export async function addToolCommand(
       outputError(source.error, "CUSTOM_LLM_NOT_SUPPORTED");
       return;
     }
+
+    if (
+      source.type === "conversation-flow" &&
+      tool.type === "custom" &&
+      (!("tool_id" in tool) || !tool.tool_id?.trim())
+    ) {
+      tool = { ...tool, tool_id: `tool-${randomUUID()}` };
+    }
+    const toolId =
+      source.type === "conversation-flow" && "tool_id" in tool
+        ? tool.tool_id
+        : undefined;
 
     // Check for duplicate tool name
     const existingNames = getAllToolNames(source);
@@ -189,6 +202,7 @@ export async function addToolCommand(
           agent_id: agentId,
           agent_name: source.agentName,
           tool_name: tool.name,
+          tool_id: toolId,
           operation: "add",
           location: options.component
             ? { location: "component", componentId: options.component }
@@ -235,6 +249,7 @@ export async function addToolCommand(
           agent_id: agentId,
           agent_name: source.agentName,
           tool_name: tool.name,
+          tool_id: toolId,
           operation: "add",
           location: { location: "component", componentId: options.component },
           note: `Run 'vac retell agents publish ${agentId}' to publish changes to production`,
@@ -254,6 +269,7 @@ export async function addToolCommand(
           agent_id: agentId,
           agent_name: source.agentName,
           tool_name: tool.name,
+          tool_id: toolId,
           operation: "add",
           location: { location: "flow" },
           note: `Run 'vac retell agents publish ${agentId}' to publish changes to production`,

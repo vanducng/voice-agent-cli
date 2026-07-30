@@ -1,6 +1,6 @@
 import { getRetellClient } from "../../services/retell-client";
 import { outputJson, handleSdkError } from "../../services/output-formatter";
-import { parsePositiveIntegerFlag } from "../../../../core/numeric-flag";
+import { parseNonNegativeIntegerFlag } from "../../../../core/numeric-flag";
 
 export interface CreateAgentVersionOptions {
   baseVersion: string;
@@ -13,7 +13,7 @@ export async function createAgentVersionCommand(
   try {
     const client = getRetellClient();
     const version = await client.agent.createVersion(agentId, {
-      base_version: parsePositiveIntegerFlag(
+      base_version: parseNonNegativeIntegerFlag(
         options.baseVersion,
         "--base-version",
       ),

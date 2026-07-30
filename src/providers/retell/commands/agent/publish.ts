@@ -6,7 +6,7 @@
 
 import { getRetellClient } from "../../services/retell-client";
 import { outputSuccess, handleSdkError } from "../../services/output-formatter";
-import { parsePositiveIntegerFlag } from "../../../../core/numeric-flag";
+import { parseNonNegativeIntegerFlag } from "../../../../core/numeric-flag";
 import { findNewestUnpublishedVersion } from "../../../../core/version-selection";
 
 export interface PublishAgentOptions {
@@ -41,24 +41,37 @@ export async function publishAgentCommand(
     const client = getRetellClient();
     const publishedVersion =
       options.version !== undefined
-        ? parsePositiveIntegerFlag(options.version, "--version")
+        ? parseNonNegativeIntegerFlag(options.version, "--version")
         : findNewestUnpublishedVersion(
             await client.agent.getVersions(agentId),
             "agent",
           );
 
-    await client.agent.publish(agentId, {
-      version: publishedVersion,
-      ...(options.description
-        ? { version_description: options.description }
-        : {}),
-    });
+    let reconciled = false;
+    try {
+      await client.agent.publish(agentId, {
+        version: publishedVersion,
+        ...(options.description
+          ? { version_description: options.description }
+          : {}),
+      });
+    } catch (error) {
+      const versions = await client.agent.getVersions(agentId).catch(() => []);
+      reconciled = versions.some(
+        (version) =>
+          version.version === publishedVersion && version.is_published === true,
+      );
+      if (!reconciled) {
+        throw error;
+      }
+    }
 
     outputSuccess({
       message: "Agent published successfully",
       agent_id: agentId,
       version: publishedVersion,
       operation: "publish",
+      ...(reconciled ? { reconciled: true } : {}),
     });
   } catch (error) {
     handleSdkError(error);

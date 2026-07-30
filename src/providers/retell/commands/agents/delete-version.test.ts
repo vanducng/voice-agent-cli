@@ -25,15 +25,15 @@ describe("deleteAgentVersionCommand", () => {
   });
 
   it("deletes the specified version", async () => {
-    await deleteAgentVersionCommand("agent_1", { version: "5" });
+    await deleteAgentVersionCommand("agent_1", { version: "0" });
 
     expect(mockClient.agent.deleteVersion).toHaveBeenCalledWith("agent_1", {
-      version: 5,
+      version: 0,
     });
     expect(outputFormatter.outputSuccess).toHaveBeenCalledWith({
       message: "Agent version deleted successfully",
       agent_id: "agent_1",
-      version: 5,
+      version: 0,
       operation: "delete-version",
     });
   });
