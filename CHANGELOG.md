@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.2](https://github.com/vanducng/voice-agent-cli/compare/v0.6.1...v0.6.2) (2026-07-30)
+
+
+### Bug Fixes
+
+* **retell:** harden agent mutation workflows ([#17](https://github.com/vanducng/voice-agent-cli/issues/17)) ([2b94f28](https://github.com/vanducng/voice-agent-cli/commit/2b94f28beea66402b477c80d9b0fdd346f1369bb))
+
 ## [0.6.1](https://github.com/vanducng/voice-agent-cli/compare/v0.6.0...v0.6.1) (2026-07-29)
 
 
