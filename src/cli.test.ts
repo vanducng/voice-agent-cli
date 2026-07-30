@@ -244,6 +244,38 @@ describe("voice-agent CLI", () => {
     },
   );
 
+  it("routes nested --version flags to the subcommand", async () => {
+    const program = createProgram();
+    const retell = program.commands.find(
+      (command) => command.name() === "retell",
+    )!;
+    const agents = retell.commands.find(
+      (command) => command.name() === "agents",
+    )!;
+    const publish = agents.commands.find(
+      (command) => command.name() === "publish",
+    )!;
+    const action = vi.fn();
+    publish.action(action);
+
+    await program.parseAsync([
+      "node",
+      "vac",
+      "retell",
+      "agents",
+      "publish",
+      "agent_1",
+      "--version",
+      "0",
+    ]);
+
+    expect(action).toHaveBeenCalledWith(
+      "agent_1",
+      expect.objectContaining({ version: "0" }),
+      publish,
+    );
+  });
+
   it("does not run the CLI when the entrypoint is imported", async () => {
     const parseAsync = vi.spyOn(Command.prototype, "parseAsync");
 

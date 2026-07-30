@@ -29,10 +29,10 @@ describe("createChatAgentVersionCommand", () => {
   });
 
   it("creates a draft version from the base version", async () => {
-    await createChatAgentVersionCommand("ca_1", { baseVersion: "1" });
+    await createChatAgentVersionCommand("ca_1", { baseVersion: "0" });
 
     expect(mockClient.chatAgent.createVersion).toHaveBeenCalledWith("ca_1", {
-      base_version: 1,
+      base_version: 0,
     });
     expect(outputFormatter.outputJson).toHaveBeenCalledWith({
       agent_id: "ca_1",

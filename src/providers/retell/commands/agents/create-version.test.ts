@@ -29,10 +29,10 @@ describe("createAgentVersionCommand", () => {
   });
 
   it("creates a draft version from the base version", async () => {
-    await createAgentVersionCommand("agent_1", { baseVersion: "5" });
+    await createAgentVersionCommand("agent_1", { baseVersion: "0" });
 
     expect(mockClient.agent.createVersion).toHaveBeenCalledWith("agent_1", {
-      base_version: 5,
+      base_version: 0,
     });
     expect(outputFormatter.outputJson).toHaveBeenCalledWith({
       agent_id: "agent_1",

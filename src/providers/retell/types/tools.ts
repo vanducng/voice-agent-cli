@@ -313,6 +313,7 @@ export interface ToolMutationOutput {
   agent_id: string;
   agent_name: string;
   tool_name: string;
+  tool_id?: string;
   operation: "add" | "update" | "remove";
   location?: ToolLocation;
   note?: string;

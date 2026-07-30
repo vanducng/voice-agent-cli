@@ -102,6 +102,27 @@ vac retell agents publish agent_123 --version 4
 
 Publishing is a separate action. Pass an explicit draft version when it is known.
 
+Resource versions are non-negative integers, including V0. Place resource-level `--version` after the leaf command. If publish returns success with `reconciled: true`, the initial provider response failed but the CLI confirmed the target version is published. Treat that as success. If publish still returns an error, read `agents versions` before deciding whether to retry.
+
+### Add a conversation-flow custom tool
+
+Validate the definition before applying it:
+
+```bash
+vac retell tools add --help
+vac retell tools add agent_123 --file custom-tool.json --dry-run |
+  jq '{message,agent_id,tool_name,tool_id,location}'
+```
+
+After explicit authorization, apply once and capture the returned tool ID:
+
+```bash
+tool_result="$(vac retell tools add agent_123 --file custom-tool.json)"
+tool_id="$(printf '%s\n' "$tool_result" | jq -er '.tool_id')"
+```
+
+For a conversation-flow custom tool, `vac` preserves a supplied `tool_id` or generates one when absent and returns it. Use the ID returned by the actual mutation when wiring the function node. Dry-run includes the tool preview, so always project safe fields and keep tool definitions and full tool responses out of logs because authorization headers may contain sensitive values. Clear captured output after verification with `unset tool_result tool_id`.
+
 ### Assign an environment tag
 
 Read the current tag and available versions before assigning it:
