@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/vanducng/voice-agent-cli/compare/v0.7.0...v0.7.1) (2026-09-08)
+
+
+### Bug Fixes
+
+* **deps:** bump nanoid to 3.3.18 ([#21](https://github.com/vanducng/voice-agent-cli/issues/21)) ([276c348](https://github.com/vanducng/voice-agent-cli/commit/276c34860be4b9b7a9e55fafeec58b5024aa9f90))
+
 ## [0.7.0](https://github.com/vanducng/voice-agent-cli/compare/v0.6.2...v0.7.0) (2026-09-08)
 
 
