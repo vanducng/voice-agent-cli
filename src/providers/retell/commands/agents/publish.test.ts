@@ -21,11 +21,14 @@ describe("publishAgentCommand", () => {
     vi.clearAllMocks();
     mockClient = {
       agent: {
-        getVersions: vi.fn().mockResolvedValue([
-          { version: 1, is_published: true },
-          { version: 5, is_published: false },
-          { version: 3, is_published: false },
-        ]),
+        listVersions: vi.fn().mockResolvedValue({
+          items: [
+            { version: 1, is_published: true },
+            { version: 5, is_published: false },
+            { version: 3, is_published: false },
+          ],
+          has_more: false,
+        }),
         publish: vi.fn().mockResolvedValue(undefined),
         retrieve: vi.fn().mockResolvedValue({
           agent_id: "agent_1",
@@ -69,9 +72,10 @@ describe("publishAgentCommand", () => {
 
   it("reconciles a publish error when the target version is published", async () => {
     mockClient.agent.publish.mockRejectedValue(new SyntaxError("empty body"));
-    mockClient.agent.getVersions.mockResolvedValue([
-      { version: 4, is_published: true },
-    ]);
+    mockClient.agent.retrieve.mockResolvedValue({
+      version: 4,
+      is_published: true,
+    });
 
     await publishAgentCommand("agent_1", { version: "4" });
 
@@ -84,9 +88,10 @@ describe("publishAgentCommand", () => {
   it("reports the publish error when reconciliation does not confirm it", async () => {
     const error = new SyntaxError("empty body");
     mockClient.agent.publish.mockRejectedValue(error);
-    mockClient.agent.getVersions.mockResolvedValue([
-      { version: 4, is_published: false },
-    ]);
+    mockClient.agent.retrieve.mockResolvedValue({
+      version: 4,
+      is_published: false,
+    });
 
     await publishAgentCommand("agent_1", { version: "4" });
 
@@ -97,16 +102,43 @@ describe("publishAgentCommand", () => {
   it("auto-selects the newest unpublished version", async () => {
     await publishAgentCommand("agent_1");
 
-    expect(mockClient.agent.getVersions).toHaveBeenCalledWith("agent_1");
+    expect(mockClient.agent.listVersions).toHaveBeenCalledWith("agent_1", {
+      limit: 1000,
+    });
     expect(mockClient.agent.publish).toHaveBeenCalledWith("agent_1", {
       version: 5,
     });
   });
 
+  it("walks version pages when auto-selecting a draft", async () => {
+    mockClient.agent.listVersions
+      .mockResolvedValueOnce({
+        items: [{ version: 6, is_published: true }],
+        has_more: true,
+        pagination_key: "page-2",
+      })
+      .mockResolvedValueOnce({
+        items: [{ version: 4, is_published: false }],
+        has_more: false,
+      });
+
+    await publishAgentCommand("agent_1");
+
+    expect(mockClient.agent.listVersions).toHaveBeenNthCalledWith(
+      2,
+      "agent_1",
+      { limit: 1000, pagination_key: "page-2" },
+    );
+    expect(mockClient.agent.publish).toHaveBeenCalledWith("agent_1", {
+      version: 4,
+    });
+  });
+
   it("rejects publish when no unpublished draft exists", async () => {
-    mockClient.agent.getVersions.mockResolvedValue([
-      { version: 1, is_published: true },
-    ]);
+    mockClient.agent.listVersions.mockResolvedValue({
+      items: [{ version: 1, is_published: true }],
+      has_more: false,
+    });
 
     await publishAgentCommand("agent_1");
 

@@ -1,15 +1,8 @@
-/**
- * Unit tests for agent versions command
- *
- * Tests version listing, formatting, and field filtering.
- */
-
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { agentVersionsCommand } from "./versions";
 import * as retellClient from "../../services/retell-client";
 import * as outputFormatter from "../../services/output-formatter";
 
-// Mock dependencies
 vi.mock("../../services/retell-client");
 vi.mock("../../services/output-formatter", async () => {
   const actual = await vi.importActual("../../services/output-formatter");
@@ -28,16 +21,13 @@ describe("agentVersionsCommand", () => {
     {
       version: 1,
       is_published: true,
-      agent_name: "Test Agent",
       last_modification_timestamp: 1700000000000,
-      extra_field: "ignored",
+      version_title: "Launch",
     },
     {
       version: 2,
       is_published: false,
-      agent_name: "Test Agent v2",
       last_modification_timestamp: 1700100000000,
-      extra_field: "also ignored",
     },
   ];
 
@@ -46,64 +36,92 @@ describe("agentVersionsCommand", () => {
 
     mockClient = {
       agent: {
-        getVersions: vi.fn().mockResolvedValue(mockVersions),
+        listVersions: vi.fn().mockResolvedValue({
+          items: mockVersions,
+          has_more: true,
+          pagination_key: "next-page",
+        }),
       },
     };
 
     vi.mocked(retellClient.getRetellClient).mockReturnValue(mockClient);
   });
 
-  describe("successful version listing", () => {
-    it("should list agent versions with formatted output", async () => {
-      await agentVersionsCommand("agent_123");
-
-      expect(mockClient.agent.getVersions).toHaveBeenCalledWith("agent_123");
-      expect(outputFormatter.outputJson).toHaveBeenCalledWith([
-        {
-          version: 1,
-          is_published: true,
-          agent_name: "Test Agent",
-          last_modification_timestamp: 1700000000000,
-        },
-        {
-          version: 2,
-          is_published: false,
-          agent_name: "Test Agent v2",
-          last_modification_timestamp: 1700100000000,
-        },
-      ]);
+  it("outputs paginated version summaries", async () => {
+    await agentVersionsCommand("agent_123", {
+      limit: "10",
+      paginationKey: "page-2",
     });
 
-    it("should handle empty versions list", async () => {
-      mockClient.agent.getVersions.mockResolvedValue([]);
-
-      await agentVersionsCommand("agent_123");
-
-      expect(outputFormatter.outputJson).toHaveBeenCalledWith([]);
+    expect(mockClient.agent.listVersions).toHaveBeenCalledWith("agent_123", {
+      limit: 10,
+      pagination_key: "page-2",
+    });
+    expect(outputFormatter.outputJson).toHaveBeenCalledWith({
+      items: mockVersions,
+      has_more: true,
+      pagination_key: "next-page",
     });
   });
 
-  describe("field filtering", () => {
-    it("should apply field filtering when --fields is specified", async () => {
-      await agentVersionsCommand("agent_123", {
-        fields: "version,is_published",
-      });
+  it("handles an empty versions page", async () => {
+    mockClient.agent.listVersions.mockResolvedValue({
+      items: [],
+      has_more: false,
+    });
 
-      expect(outputFormatter.filterFields).toHaveBeenCalledWith(
-        expect.any(Array),
-        ["version", "is_published"],
-      );
+    await agentVersionsCommand("agent_123");
+
+    expect(outputFormatter.outputJson).toHaveBeenCalledWith({
+      items: [],
+      has_more: false,
     });
   });
 
-  describe("error handling", () => {
-    it("should handle API errors via handleSdkError", async () => {
-      const apiError = new Error("Agent not found");
-      mockClient.agent.getVersions.mockRejectedValue(apiError);
-
-      await agentVersionsCommand("nonexistent_agent");
-
-      expect(outputFormatter.handleSdkError).toHaveBeenCalledWith(apiError);
+  it("applies field filtering without dropping pagination metadata", async () => {
+    await agentVersionsCommand("agent_123", {
+      fields: "version,is_published",
     });
+
+    expect(outputFormatter.filterFields).toHaveBeenCalledWith(
+      expect.any(Array),
+      ["version", "is_published"],
+    );
+    expect(outputFormatter.outputJson).toHaveBeenCalledWith({
+      items: mockVersions,
+      has_more: true,
+      pagination_key: "next-page",
+    });
+  });
+
+  it("rejects retired version arrays", async () => {
+    mockClient.agent.listVersions.mockResolvedValue(mockVersions);
+
+    await agentVersionsCommand("agent_123");
+
+    expect(outputFormatter.outputJson).not.toHaveBeenCalled();
+    expect(outputFormatter.handleSdkError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringContaining("GET /list-agent-versions"),
+      }),
+    );
+  });
+
+  it("rejects non-numeric --limit", async () => {
+    await agentVersionsCommand("agent_123", { limit: "x" });
+
+    expect(mockClient.agent.listVersions).not.toHaveBeenCalled();
+    expect(outputFormatter.handleSdkError).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "ValidationError" }),
+    );
+  });
+
+  it("handles API errors via handleSdkError", async () => {
+    const apiError = new Error("Agent not found");
+    mockClient.agent.listVersions.mockRejectedValue(apiError);
+
+    await agentVersionsCommand("nonexistent_agent");
+
+    expect(outputFormatter.handleSdkError).toHaveBeenCalledWith(apiError);
   });
 });

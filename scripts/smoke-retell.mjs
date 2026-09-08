@@ -14,34 +14,56 @@ if (!process.env.RETELL_API_KEY) {
   process.exit(1);
 }
 
-const result = spawnSync(
-  process.execPath,
-  [
-    resolve(root, "dist/index.js"),
-    "retell",
-    "agents",
-    "list",
-    "--limit",
-    "1",
-    "--fields",
-    "agent_id",
-  ],
-  { cwd: root, encoding: "utf8", env: process.env },
-);
-
-if (result.error || result.status !== 0) {
-  throw new Error(
-    `Retell CLI exited with status ${result.status ?? "unknown"}`,
+function runCli(args) {
+  const result = spawnSync(
+    process.execPath,
+    [resolve(root, "dist/index.js"), ...args],
+    { cwd: root, encoding: "utf8", env: process.env },
   );
+
+  if (result.error || result.status !== 0) {
+    throw new Error(
+      `Retell CLI exited with status ${result.status ?? "unknown"}`,
+    );
+  }
+
+  return JSON.parse(result.stdout);
 }
 
-const response = JSON.parse(result.stdout);
+const response = runCli([
+  "retell",
+  "agents",
+  "list",
+  "--limit",
+  "1",
+  "--fields",
+  "agent_id",
+]);
 const items = response?.items;
 
 if (!Array.isArray(items)) {
   throw new Error(
     "Retell POST /v2/list-agents response did not contain the current items array",
   );
+}
+
+const agentId = items[0]?.agent_id;
+if (typeof agentId === "string" && agentId.length > 0) {
+  const versions = runCli([
+    "retell",
+    "agents",
+    "versions",
+    agentId,
+    "--limit",
+    "1",
+    "--fields",
+    "version,is_published",
+  ]);
+  if (!Array.isArray(versions?.items)) {
+    throw new Error(
+      "Retell GET /list-agent-versions response did not contain the current items array",
+    );
+  }
 }
 
 console.log("Retell read-only smoke: PASS (authenticated agent summary shape)");

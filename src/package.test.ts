@@ -65,7 +65,7 @@ describe("package metadata", () => {
   });
 
   it("pins the Retell SDK and does not ship dotenv", () => {
-    expect(packageJson.dependencies["retell-sdk"]).toBe("5.48.0");
+    expect(packageJson.dependencies["retell-sdk"]).toBe("5.64.0");
     expect(packageJson.dependencies).not.toHaveProperty("dotenv");
   });
 

@@ -3,7 +3,7 @@ title: Retell API compatibility
 description: Current Retell SDK, endpoint, and payload compatibility
 ---
 
-This page records the verified Retell contract as of 2026-07-28. The package pins `retell-sdk` to exactly `5.48.0`.
+This page records the verified Retell contract as of 2026-09-15. The package pins `retell-sdk` to exactly `5.64.0`.
 
 The CLI calls only current endpoints. It requires the current paginated response envelope with `items` and preserves optional `pagination_key` and `has_more` metadata. Legacy arrays and wrapper objects are rejected with an explicit contract error.
 
@@ -22,6 +22,7 @@ The CLI calls only current endpoints. It requires the current paginated response
 | Retell LLMs list | `GET /v2/list-retell-llms` | `client.llm.list()` |
 | Test case definitions list | `GET /v2/list-test-case-definitions` | `client.tests.listTestCaseDefinitions()` |
 | Test runs list | `GET /v2/list-test-runs/{test_case_batch_job_id}` | `client.tests.listTestRuns()` |
+| Agent versions list | `GET /list-agent-versions/{agent_id}` | `client.agent.listVersions()` |
 | Agent publish | `POST /publish-agent-version/{agent_id}` with an explicit version | `client.agent.publish()` or `client.chatAgent.publish()` |
 | Agent tags read | `GET /get-agent-root/{agent_id}` | Generic SDK `get()` with the current path |
 | Agent tag assignment | `PATCH /update-agent-root/{agent_id}` with the complete tag map | Generic SDK `patch()` with the current path |
@@ -29,7 +30,7 @@ The CLI calls only current endpoints. It requires the current paginated response
 | Call analysis rerun | `PUT /rerun-call-analysis/{call_id}` | Generic SDK `put()` with automatic retries disabled |
 | Chat analysis rerun | `PUT /rerun-chat-analysis/{chat_id}` | Generic SDK `put()` with automatic retries disabled |
 
-`retell-sdk` 5.48.0 does not expose generated helpers for agent tags, Update Live Call, or analysis reruns, so these commands use the SDK's generic request client. Tag assignment validates that the tag and version exist, sends the complete current tag map with dynamic variables preserved, and verifies the selected tag with a final read. `calls update-live` supports `override_dynamic_variables`, `metadata`, `data_storage_setting`, `additional_context`, and `trigger_response`, and returns the API's `{ "success": true }` response.
+`retell-sdk` 5.64.0 does not expose generated helpers for agent tags, Update Live Call, or analysis reruns, so these commands use the SDK's generic request client. Tag assignment paginates `GET /list-agent-versions/{agent_id}` to confirm the version exists, sends the complete current tag map with dynamic variables preserved, and verifies the selected tag with a final read. `calls update-live` supports `override_dynamic_variables`, `metadata`, `data_storage_setting`, `additional_context`, and `trigger_response`, and returns the API's `{ "success": true }` response.
 
 ## Removed legacy contracts
 
@@ -40,6 +41,8 @@ The CLI calls only current endpoints. It requires the current paginated response
 | `POST /v2/list-calls` | `POST /v3/list-calls` | Not called; only the current paginated response is accepted |
 | `GET /list-chat` | `POST /v3/list-chats` | Not called; only the current paginated response is accepted |
 | Legacy unversioned resource list endpoints | The versioned SDK list endpoints above | Not called; shared pagination requires `items` |
+| `GET /get-agent-versions/{agent_id}` | `GET /list-agent-versions/{agent_id}` | Not called |
+| `GET /get-chat-agent-versions/{agent_id}` | `GET /list-agent-versions/{agent_id}` | Not called |
 | Legacy voice and chat publish endpoints | `POST /publish-agent-version/{agent_id}` | Not called |
 | `Update Call` for ongoing calls | `PATCH /v2/update-live-call/{call_id}` | Live overrides use the current endpoint; persisted ended-call updates remain separate |
 
@@ -59,6 +62,7 @@ The old endpoint names above are migration history only. They are not present in
 
 - [Agent list endpoint migration](https://docs.retellai.com/deprecation-notice/2026/07-31_agent_list_endpoints)
 - [Versioned list endpoint migration](https://docs.retellai.com/deprecation-notice/2026/06-15_legacy_list_endpoints)
+- [Unified list-agent-versions migration](https://docs.retellai.com/deprecation-notice/2026/09-15_get_agent_versions)
 - [Unified publish endpoint migration](https://docs.retellai.com/deprecation-notice/2026/07-20_agent_version_endpoints)
 - [Update Call restriction and Update Live Call migration](https://docs.retellai.com/deprecation-notice/2026/08-31_update_call_ended_calls_only)
 - [Weighted phone number agent fields](https://docs.retellai.com/deprecation-notice/2026/03-31_phone_number_agent_fields)

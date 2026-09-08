@@ -102,7 +102,7 @@ vac retell agents publish agent_123 --version 4
 
 Publishing is a separate action. Pass an explicit draft version when it is known.
 
-Resource versions are non-negative integers, including V0. Place resource-level `--version` after the leaf command. If publish returns success with `reconciled: true`, the initial provider response failed but the CLI confirmed the target version is published. Treat that as success. If publish still returns an error, read `agents versions` before deciding whether to retry.
+Resource versions are non-negative integers, including V0. Place resource-level `--version` after the leaf command. If publish returns success with `reconciled: true`, the initial provider response failed but the CLI confirmed the target version is published. Treat that as success. If publish still returns an error, read `agents versions` and continue while `has_more` is true before deciding whether to retry.
 
 ### Add a conversation-flow custom tool
 
@@ -129,7 +129,7 @@ Read the current tag and available versions before assigning it:
 
 ```bash
 vac retell agents tags get agent_123 prod
-vac retell agents versions agent_123 --fields version,is_published
+vac retell agents versions agent_123 --fields version,is_published | jq '.items'
 vac retell agents tags assign agent_123 prod --agent-version 4 --dry-run
 ```
 

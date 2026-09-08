@@ -40,11 +40,14 @@ describe("agent tag commands", () => {
       get: vi.fn().mockReturnValue(response(root)),
       patch: vi.fn().mockResolvedValue({}),
       agent: {
-        getVersions: vi.fn().mockResolvedValue([
-          { version: 0, is_published: true },
-          { version: 2, is_published: true },
-          { version: 3, is_published: false },
-        ]),
+        listVersions: vi.fn().mockResolvedValue({
+          items: [
+            { version: 0, is_published: true },
+            { version: 2, is_published: true },
+            { version: 3, is_published: false },
+          ],
+          has_more: false,
+        }),
       },
     };
     vi.mocked(retellClient.getRetellClient).mockReturnValue(client);
@@ -188,6 +191,32 @@ describe("agent tag commands", () => {
     expect(client.patch).not.toHaveBeenCalled();
     expect(outputFormatter.handleSdkError).toHaveBeenCalledWith(
       expect.objectContaining({ name: "ValidationError" }),
+    );
+  });
+
+  it("finds a version on a later page before assigning", async () => {
+    client.agent.listVersions
+      .mockResolvedValueOnce({
+        items: [{ version: 2, is_published: true }],
+        has_more: true,
+        pagination_key: "page-2",
+      })
+      .mockResolvedValueOnce({
+        items: [{ version: 3, is_published: false }],
+        has_more: false,
+      });
+
+    await assignAgentTagCommand("agent_1", "prod", {
+      agentVersion: "3",
+      dryRun: true,
+    });
+
+    expect(client.agent.listVersions).toHaveBeenNthCalledWith(2, "agent_1", {
+      limit: 1000,
+      pagination_key: "page-2",
+    });
+    expect(outputFormatter.outputSuccess).toHaveBeenCalledWith(
+      expect.objectContaining({ dry_run: true, version: 3 }),
     );
   });
 });

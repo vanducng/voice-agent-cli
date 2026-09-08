@@ -1,5 +1,6 @@
 import { requireNonEmpty } from "../../../../core/flag-guards";
 import { parseNumericFlag } from "../../../../core/numeric-flag";
+import { listAllAgentVersions } from "../../services/agent-versions";
 import { getRetellClient } from "../../services/retell-client";
 import {
   handleSdkError,
@@ -117,7 +118,7 @@ export async function assignAgentTagCommand(
     if (!Number.isSafeInteger(version) || version < 0) {
       throwValidation("--agent-version must be a non-negative safe integer");
     }
-    const versions = await client.agent.getVersions(agentId);
+    const versions = await listAllAgentVersions(client, agentId);
     const target = versions.find((candidate) => candidate.version === version);
     if (!target) {
       throwValidation(`Version ${version} does not exist on agent ${agentId}`);
