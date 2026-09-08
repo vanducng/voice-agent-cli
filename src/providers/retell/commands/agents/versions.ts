@@ -1,53 +1,46 @@
-/**
- * Agent Versions Command
- *
- * Lists all versions of an agent.
- * Usage: vac retell agents versions <agent_id>
- */
-
-import { getRetellClient } from "../../services/retell-client";
+import { parsePositiveIntegerFlag } from "../../../../core/numeric-flag";
 import {
-  outputJson,
-  handleSdkError,
+  getPaginatedItems,
+  withPaginationMetadata,
+} from "../../../../core/paginated-response";
+import { AGENT_VERSIONS_CONTRACT } from "../../services/agent-versions";
+import {
   filterFields,
+  handleSdkError,
+  outputJson,
 } from "../../services/output-formatter";
+import { getRetellClient } from "../../services/retell-client";
+import type { AgentListVersionsParams } from "retell-sdk/resources/agent";
 
 export interface AgentVersionsOptions {
+  limit?: string;
+  paginationKey?: string;
   fields?: string;
 }
 
-/**
- * List all versions of an agent
- *
- * @param agentId The agent ID to get versions for
- * @param options Command options
- */
 export async function agentVersionsCommand(
   agentId: string,
   options: AgentVersionsOptions = {},
 ): Promise<void> {
   try {
-    const client = getRetellClient();
+    const query: AgentListVersionsParams = {};
+    if (options.limit !== undefined) {
+      query.limit = parsePositiveIntegerFlag(options.limit, "--limit");
+    }
+    if (options.paginationKey) {
+      query.pagination_key = options.paginationKey;
+    }
 
-    const versions = await client.agent.getVersions(agentId);
-
-    // Format output showing version details
-    const formatted = versions.map((v) => ({
-      version: v.version,
-      is_published: v.is_published,
-      agent_name: v.agent_name,
-      last_modification_timestamp: v.last_modification_timestamp,
-    }));
-
-    // Apply field filtering if requested
-    const output = options.fields
+    const response = await getRetellClient().agent.listVersions(agentId, query);
+    const versions = getPaginatedItems(response, AGENT_VERSIONS_CONTRACT);
+    const items = options.fields
       ? filterFields(
-          formatted,
-          options.fields.split(",").map((f) => f.trim()),
+          versions,
+          options.fields.split(",").map((field) => field.trim()),
         )
-      : formatted;
+      : versions;
 
-    outputJson(output);
+    outputJson(withPaginationMetadata(response, items));
   } catch (error) {
     handleSdkError(error);
   }

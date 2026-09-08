@@ -41,3 +41,25 @@ export function getPaginatedResult<T>(
   const items = getPaginatedItems(response);
   return withPaginationMetadata(response, items);
 }
+
+export async function collectPaginatedItems<T>(
+  loadPage: (paginationKey?: string) => Promise<PaginatedResponse<T>>,
+  errorMessage?: string,
+): Promise<T[]> {
+  const items: T[] = [];
+  let paginationKey: string | undefined;
+
+  for (;;) {
+    const response = await loadPage(paginationKey);
+    items.push(...getPaginatedItems(response, errorMessage));
+    if (!response.has_more) {
+      return items;
+    }
+    if (!response.pagination_key || response.pagination_key === paginationKey) {
+      throw new Error(
+        "Unexpected Retell list response: has_more is true without a new pagination_key.",
+      );
+    }
+    paginationKey = response.pagination_key;
+  }
+}

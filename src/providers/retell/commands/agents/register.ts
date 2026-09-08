@@ -123,14 +123,20 @@ Examples:
 
   agents
     .command("versions <agent_id>")
-    .description("List all versions of an agent")
+    .description("List stored versions of an agent")
+    .option("-l, --limit <number>", "Maximum number of versions to return")
+    .option(
+      "--pagination-key <key>",
+      "Pagination key for fetching the next page",
+    )
     .option("--fields <fields>", "Comma-separated list of fields to return")
     .addHelpText(
       "after",
       `
 Examples:
   $ vac retell agents versions agent_123abc
-  $ vac retell agents versions agent_123abc --fields version,is_published
+  $ vac retell agents versions agent_123abc --limit 10
+  $ vac retell agents versions agent_123abc --fields version,is_published | jq '.items'
   `,
     )
     .action(async (agentId, options) => {

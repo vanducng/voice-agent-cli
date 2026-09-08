@@ -78,6 +78,17 @@ describe("voice-agent CLI", () => {
     expect(listHelp).toContain(".items[]");
     expect(listHelp).not.toContain("response_engine");
 
+    const versions = agents.commands.find(
+      (command) => command.name() === "versions",
+    )!;
+    expect(versions.options.map((option) => option.long)).toEqual(
+      expect.arrayContaining(["--limit", "--pagination-key", "--fields"]),
+    );
+    let versionsHelp = "";
+    versions.configureOutput({ writeOut: (text) => (versionsHelp += text) });
+    versions.outputHelp();
+    expect(versionsHelp).toContain(".items");
+
     for (const name of ["pull", "diff", "update"]) {
       const command = prompts.commands.find((entry) => entry.name() === name)!;
       expect(command.options[0].defaultValue).toBe(

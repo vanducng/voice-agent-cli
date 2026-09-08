@@ -8,6 +8,7 @@ import { getRetellClient } from "../../services/retell-client";
 import { outputSuccess, handleSdkError } from "../../services/output-formatter";
 import { parseNonNegativeIntegerFlag } from "../../../../core/numeric-flag";
 import { findNewestUnpublishedVersion } from "../../../../core/version-selection";
+import { listAllAgentVersions } from "../../services/agent-versions";
 
 export interface PublishChatAgentOptions {
   version?: string;
@@ -24,7 +25,7 @@ export async function publishChatAgentCommand(
       options.version !== undefined
         ? parseNonNegativeIntegerFlag(options.version, "--version")
         : findNewestUnpublishedVersion(
-            await client.chatAgent.getVersions(agentId),
+            await listAllAgentVersions(client, agentId),
             "chat agent",
           );
 
@@ -37,13 +38,15 @@ export async function publishChatAgentCommand(
           : {}),
       });
     } catch (error) {
-      const versions = await client.chatAgent
-        .getVersions(agentId)
-        .catch(() => []);
-      reconciled = versions.some(
-        (candidate) =>
-          candidate.version === version && candidate.is_published === true,
-      );
+      try {
+        const snapshot = await client.chatAgent.retrieve(agentId, {
+          version,
+        });
+        reconciled =
+          snapshot.version === version && snapshot.is_published === true;
+      } catch {
+        reconciled = false;
+      }
       if (!reconciled) {
         throw error;
       }

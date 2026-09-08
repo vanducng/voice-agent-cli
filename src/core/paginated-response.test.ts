@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
+  collectPaginatedItems,
   getPaginatedItems,
   withPaginationMetadata,
 } from "./paginated-response";
@@ -42,5 +43,39 @@ describe("getPaginatedItems", () => {
       has_more: true,
       pagination_key: "next",
     });
+  });
+});
+
+describe("collectPaginatedItems", () => {
+  it("walks pages until has_more is false", async () => {
+    const loadPage = vi.fn(async (paginationKey?: string) => {
+      if (paginationKey === undefined) {
+        return {
+          items: [{ id: "one" }],
+          has_more: true,
+          pagination_key: "page-2",
+        };
+      }
+      return {
+        items: [{ id: "two" }],
+        has_more: false,
+      };
+    });
+
+    await expect(collectPaginatedItems(loadPage)).resolves.toEqual([
+      { id: "one" },
+      { id: "two" },
+    ]);
+    expect(loadPage).toHaveBeenNthCalledWith(1, undefined);
+    expect(loadPage).toHaveBeenNthCalledWith(2, "page-2");
+  });
+
+  it("rejects a page that claims more results without a new key", async () => {
+    await expect(
+      collectPaginatedItems(async () => ({
+        items: [{ id: "one" }],
+        has_more: true,
+      })),
+    ).rejects.toThrow("has_more is true without a new pagination_key");
   });
 });

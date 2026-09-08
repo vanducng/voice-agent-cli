@@ -3,7 +3,7 @@ title: Retell
 description: Current provider coverage and SDK boundary
 ---
 
-Retell is the first and only provider implemented today. The integration is built on the official `retell-sdk`, pinned exactly to `5.48.0` in the root `package.json` and `package-lock.json` as of 2026-07-27.
+Retell is the first and only provider implemented today. The integration is built on the official `retell-sdk`, pinned exactly to `5.64.0` in the root `package.json` and `package-lock.json` as of 2026-09-15.
 
 The `vac retell` namespace covers:
 

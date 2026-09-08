@@ -67,7 +67,12 @@ export function registerChatAgentsCommands(program: Command): void {
 
   chatAgents
     .command("versions <agent_id>")
-    .description("List all versions of a chat agent")
+    .description("List stored versions of a chat agent")
+    .option("-l, --limit <n>", "Maximum number of versions to return")
+    .option(
+      "--pagination-key <key>",
+      "Pagination key for fetching the next page",
+    )
     .option("--fields <fields>", "Comma-separated list of fields to return")
     .action(async (agentId, options) => {
       await chatAgentVersionsCommand(agentId, options);

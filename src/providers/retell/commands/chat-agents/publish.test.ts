@@ -19,13 +19,22 @@ describe("publishChatAgentCommand", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockClient = {
+      agent: {
+        listVersions: vi.fn().mockResolvedValue({
+          items: [
+            { version: 1, is_published: true },
+            { version: 3, is_published: false },
+            { version: 2, is_published: false },
+          ],
+          has_more: false,
+        }),
+      },
       chatAgent: {
-        getVersions: vi.fn().mockResolvedValue([
-          { version: 1, is_published: true },
-          { version: 3, is_published: false },
-          { version: 2, is_published: false },
-        ]),
         publish: vi.fn().mockResolvedValue(undefined),
+        retrieve: vi.fn().mockResolvedValue({
+          version: 1,
+          is_published: true,
+        }),
       },
     };
     vi.mocked(retellClient.getRetellClient).mockReturnValue(mockClient);
@@ -52,16 +61,19 @@ describe("publishChatAgentCommand", () => {
   it("auto-selects the newest unpublished version", async () => {
     await publishChatAgentCommand("ca_1");
 
-    expect(mockClient.chatAgent.getVersions).toHaveBeenCalledWith("ca_1");
+    expect(mockClient.agent.listVersions).toHaveBeenCalledWith("ca_1", {
+      limit: 1000,
+    });
     expect(mockClient.chatAgent.publish).toHaveBeenCalledWith("ca_1", {
       version: 3,
     });
   });
 
   it("rejects publish when no unpublished draft exists", async () => {
-    mockClient.chatAgent.getVersions.mockResolvedValue([
-      { version: 1, is_published: true },
-    ]);
+    mockClient.agent.listVersions.mockResolvedValue({
+      items: [{ version: 1, is_published: true }],
+      has_more: false,
+    });
 
     await publishChatAgentCommand("ca_1");
 
@@ -73,6 +85,10 @@ describe("publishChatAgentCommand", () => {
 
   it("reconciles a publish error when the target version is published", async () => {
     mockClient.chatAgent.publish.mockRejectedValue(new Error("api"));
+    mockClient.chatAgent.retrieve.mockResolvedValue({
+      version: 1,
+      is_published: true,
+    });
     await publishChatAgentCommand("ca_1", { version: "1" });
     expect(outputFormatter.outputSuccess).toHaveBeenCalledWith(
       expect.objectContaining({ version: 1, reconciled: true }),
@@ -83,6 +99,10 @@ describe("publishChatAgentCommand", () => {
   it("routes unconfirmed SDK errors through handleSdkError", async () => {
     const error = new Error("api");
     mockClient.chatAgent.publish.mockRejectedValue(error);
+    mockClient.chatAgent.retrieve.mockResolvedValue({
+      version: 4,
+      is_published: false,
+    });
     await publishChatAgentCommand("ca_1", { version: "4" });
     expect(outputFormatter.handleSdkError).toHaveBeenCalledWith(error);
   });
