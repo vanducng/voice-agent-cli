@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.7.0](https://github.com/vanducng/voice-agent-cli/compare/v0.6.2...v0.7.0) (2026-09-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* **retell:** `agents versions` and `chat-agents versions` now return the paginated `{ items, has_more, pagination_key }` envelope of version summaries instead of a top-level array of full agent objects.
+
+### Features
+
+* **retell:** list agent versions through GET /list-agent-versions ([#19](https://github.com/vanducng/voice-agent-cli/issues/19)) ([278b344](https://github.com/vanducng/voice-agent-cli/commit/278b3447a15665df5f064d3399823df75e0e27fd))
+
 ## [0.6.2](https://github.com/vanducng/voice-agent-cli/compare/v0.6.1...v0.6.2) (2026-07-30)
 
 
