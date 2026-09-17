@@ -61,12 +61,12 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "@vitest/coverage-v8": "^4.0.0",
+    "@vitest/coverage-v8": "^4.1.11",
     "esbuild": "^0.28.1",
     "prettier": "^3.8.1",
     "tsx": "^4.21.0",
     "typescript": "^5.0.0",
-    "vitest": "^4.0.0"
+    "vitest": "^4.1.11"
   },
   "overrides": {
     "whatwg-url": "^14.0.0",
