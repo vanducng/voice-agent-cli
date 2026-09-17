@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.3](https://github.com/vanducng/voice-agent-cli/compare/v0.7.2...v0.7.3) (2026-09-17)
+
+
+### Bug Fixes
+
+* **deps:** bump vitest to 4.1.11 ([#25](https://github.com/vanducng/voice-agent-cli/issues/25)) ([1e4fc14](https://github.com/vanducng/voice-agent-cli/commit/1e4fc14b38f33d6bf382c41fca2da83a2274efa2))
+
 ## [0.7.2](https://github.com/vanducng/voice-agent-cli/compare/v0.7.1...v0.7.2) (2026-09-17)
 
 
