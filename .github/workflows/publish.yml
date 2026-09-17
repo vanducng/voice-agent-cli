@@ -196,10 +196,15 @@ jobs:
         env:
           VERSION: ${{ needs.release-please.outputs.version }}
         run: |
-          for _ in 1 2 3 4 5; do
-            if [ "$(npm view "voice-agent-cli@${VERSION}" version 2>/dev/null)" = "${VERSION}" ]; then
+          set -euo pipefail
+          for attempt in $(seq 1 20); do
+            viewed="$(npm view "voice-agent-cli@${VERSION}" version --prefer-online --registry https://registry.npmjs.org 2>&1 || true)"
+            if [ "${viewed}" = "${VERSION}" ]; then
+              echo "Verified voice-agent-cli@${VERSION} on npm."
               exit 0
             fi
-            sleep 3
+            echo "Attempt ${attempt}/20: registry does not yet report ${VERSION} (${viewed})"
+            sleep 15
           done
+          echo "voice-agent-cli@${VERSION} was not visible on npm after 5 minutes." >&2
           exit 1
