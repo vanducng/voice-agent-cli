@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.4](https://github.com/vanducng/voice-agent-cli/compare/v0.7.3...v0.7.4) (2026-09-17)
+
+
+### Bug Fixes
+
+* **docs:** bump astro to 7.3.3 ([#27](https://github.com/vanducng/voice-agent-cli/issues/27)) ([4e73a90](https://github.com/vanducng/voice-agent-cli/commit/4e73a9080f0449f3d4ccd7c1472ddafea942e106))
+
 ## [0.7.3](https://github.com/vanducng/voice-agent-cli/compare/v0.7.2...v0.7.3) (2026-09-17)
 
 
