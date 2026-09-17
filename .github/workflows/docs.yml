@@ -40,6 +40,9 @@ jobs:
       - name: Install documentation dependencies
         run: npm ci --prefix docs
 
+      - name: Audit documentation dependencies
+        run: npm --prefix docs audit --audit-level=low
+
       - name: Build documentation
         run: npm run build --prefix docs
 
