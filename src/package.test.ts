@@ -106,4 +106,17 @@ describe("package metadata", () => {
     expect(publishWorkflow).toContain('.state != "SUCCESS"');
     expect(publishWorkflow).toContain('--match-head-commit "${HEAD_SHA}"');
   });
+
+  it("waits for npm registry replication after OIDC publish", () => {
+    expect(publishWorkflow).toContain("Verify registry version");
+    expect(publishWorkflow).toContain("--prefer-online");
+    expect(publishWorkflow).toContain("--registry https://registry.npmjs.org");
+    expect(publishWorkflow).toContain("seq 1 20");
+    expect(publishWorkflow).toContain("sleep 15");
+    expect(publishWorkflow).toContain(
+      "was not visible on npm after 5 minutes.",
+    );
+    expect(publishWorkflow).not.toContain("for _ in 1 2 3 4 5");
+    expect(publishWorkflow).not.toContain("sleep 3");
+  });
 });
