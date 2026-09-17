@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.2](https://github.com/vanducng/voice-agent-cli/compare/v0.7.1...v0.7.2) (2026-09-17)
+
+
+### Bug Fixes
+
+* **release:** wait for npm registry replication after publish ([#23](https://github.com/vanducng/voice-agent-cli/issues/23)) ([f51e2e5](https://github.com/vanducng/voice-agent-cli/commit/f51e2e536bcf17d79804407c7f869411e477ed74))
+
 ## [0.7.1](https://github.com/vanducng/voice-agent-cli/compare/v0.7.0...v0.7.1) (2026-09-08)
 
 
