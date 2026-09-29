@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.0](https://github.com/vanducng/voice-agent-cli/compare/v0.7.4...v0.8.0) (2026-09-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* **retell:** calls create-web follows POST /v3/create-web-call and prints the connection payload (call_id, access_token, transport, ice_servers, expires_at).
+
+### Features
+
+* **retell:** pin retell-sdk 6.0.1 ([7ad0d87](https://github.com/vanducng/voice-agent-cli/commit/7ad0d87dcf57989d494bbc9a42a99f03cb738b5b))
+
 ## [0.7.4](https://github.com/vanducng/voice-agent-cli/compare/v0.7.3...v0.7.4) (2026-09-17)
 
 
