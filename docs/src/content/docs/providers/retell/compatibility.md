@@ -3,7 +3,7 @@ title: Retell API compatibility
 description: Current Retell SDK, endpoint, and payload compatibility
 ---
 
-This page records the verified Retell contract as of 2026-09-15. The package pins `retell-sdk` to exactly `5.64.0`.
+This page records the verified Retell contract as of 2026-09-29. The package pins `retell-sdk` to exactly `6.0.1`.
 
 The CLI calls only current endpoints. It requires the current paginated response envelope with `items` and preserves optional `pagination_key` and `has_more` metadata. Legacy arrays and wrapper objects are rejected with an explicit contract error.
 
@@ -14,6 +14,7 @@ The CLI calls only current endpoints. It requires the current paginated response
 | Voice agents list | `POST /v2/list-agents` with `channel: "voice"` | `client.agent.list()` |
 | Chat agents list | `POST /v2/list-agents` with `channel: "chat"` | `client.chatAgent.list()` |
 | Calls list and search | `POST /v3/list-calls` | `client.call.list()` |
+| Web call create | `POST /v3/create-web-call` | `client.call.createWebCall()` |
 | Chats list | `POST /v3/list-chats` | `client.chat.list()` |
 | Batch tests list | `GET /v2/list-batch-tests` | `client.tests.listBatchTests()` |
 | Conversation flow components list | `GET /v2/list-conversation-flow-components` | `client.conversationFlowComponent.list()` |
@@ -30,7 +31,7 @@ The CLI calls only current endpoints. It requires the current paginated response
 | Call analysis rerun | `PUT /rerun-call-analysis/{call_id}` | Generic SDK `put()` with automatic retries disabled |
 | Chat analysis rerun | `PUT /rerun-chat-analysis/{chat_id}` | Generic SDK `put()` with automatic retries disabled |
 
-`retell-sdk` 5.64.0 does not expose generated helpers for agent tags, Update Live Call, or analysis reruns, so these commands use the SDK's generic request client. Tag assignment paginates `GET /list-agent-versions/{agent_id}` to confirm the version exists, sends the complete current tag map with dynamic variables preserved, and verifies the selected tag with a final read. `calls update-live` supports `override_dynamic_variables`, `metadata`, `data_storage_setting`, `additional_context`, and `trigger_response`, and returns the API's `{ "success": true }` response.
+`retell-sdk` 6.0.1 exposes `client.call.updateLive()` and `client.call.rerunAnalysis()`. Agent tags still use the generic request client. `calls update-live` keeps generic `patch()` so the body stays `{ fields_to_override, call_control }`. `calls rerun-analysis` keeps generic `put()` with retries disabled. `calls create-web` follows `client.call.createWebCall()` and prints the v3 connection payload: `call_id`, `access_token`, `transport`, `ice_servers`, and `expires_at`. Tag assignment paginates `GET /list-agent-versions/{agent_id}` to confirm the version exists, sends the complete current tag map with dynamic variables preserved, and verifies the selected tag with a final read. `calls update-live` supports `override_dynamic_variables`, `metadata`, `data_storage_setting`, `additional_context`, and `trigger_response`, and returns the API's `{ "success": true }` response.
 
 ## Removed legacy contracts
 
@@ -43,6 +44,7 @@ The CLI calls only current endpoints. It requires the current paginated response
 | Legacy unversioned resource list endpoints | The versioned SDK list endpoints above | Not called; shared pagination requires `items` |
 | `GET /get-agent-versions/{agent_id}` | `GET /list-agent-versions/{agent_id}` | Not called |
 | `GET /get-chat-agent-versions/{agent_id}` | `GET /list-agent-versions/{agent_id}` | Not called |
+| `POST /v2/create-web-call` | `POST /v3/create-web-call` | Called through `client.call.createWebCall()` |
 | Legacy voice and chat publish endpoints | `POST /publish-agent-version/{agent_id}` | Not called |
 | `Update Call` for ongoing calls | `PATCH /v2/update-live-call/{call_id}` | Live overrides use the current endpoint; persisted ended-call updates remain separate |
 
