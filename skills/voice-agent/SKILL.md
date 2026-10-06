@@ -128,6 +128,7 @@ For a conversation-flow custom tool, `vac` preserves a supplied `tool_id` or gen
 Read the current tag and available versions before assigning it:
 
 ```bash
+vac retell agents tags assign --help
 vac retell agents tags get agent_123 prod
 vac retell agents versions agent_123 --fields version,is_published | jq '.items'
 vac retell agents tags assign agent_123 prod --agent-version 4 --dry-run
@@ -140,7 +141,23 @@ vac retell agents tags assign agent_123 prod --agent-version 4
 vac retell agents tags get agent_123 prod
 ```
 
-The tag must already exist and the version must belong to the agent. Assigning a tag immediately switches dependent traffic, including production traffic for `prod`. The command preserves the other tags and all tag dynamic variables, then verifies the selected tag before returning success.
+The tag must already exist. A version passed with `--agent-version` must belong to the agent. Omit `--agent-version` to keep the current version. Assigning a tag immediately switches dependent traffic, including production traffic for `prod`. The command preserves the other tags, then verifies the selected tag before returning success.
+
+### Update tag dynamic variables
+
+Environment tags carry their own dynamic variables. Merge values into the selected tag, or pass `--replace` to swap that tag's entire map:
+
+```bash
+vac retell agents tags assign agent_123 staging \
+  --set base_url=https://staging.example.com \
+  --dry-run
+vac retell agents tags assign agent_123 staging \
+  --dynamic-variables-file staging-variables.json \
+  --replace \
+  --dry-run
+```
+
+`--dynamic-variables` and `--dynamic-variables-file` are mutually exclusive. Repeatable `--set KEY=VALUE` overrides the same key from the JSON object. Values must be strings. Dry-run prints `dynamic_variables.current` and `dynamic_variables.next`. `tags get` and `tags assign` print `***` for keys whose names contain `key`, `token`, `secret`, or `password`. Treat a variable change on `prod` like moving `prod`: it changes live traffic and needs explicit authorization. Apply once, then read the tag again.
 
 ### Bind a phone number to an environment tag
 

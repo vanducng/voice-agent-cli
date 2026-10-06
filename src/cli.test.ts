@@ -126,11 +126,27 @@ describe("voice-agent CLI", () => {
       "get",
       "assign",
     ]);
+    const assign = tags.commands.find(
+      (command) => command.name() === "assign",
+    )!;
+    expect(assign.options.map((option) => option.long)).toEqual([
+      "--agent-version",
+      "--dynamic-variables",
+      "--dynamic-variables-file",
+      "--set",
+      "--replace",
+      "--dry-run",
+    ]);
     expect(
-      tags.commands
-        .find((command) => command.name() === "assign")!
-        .options.map((option) => option.long),
-    ).toEqual(["--agent-version", "--dry-run"]);
+      assign.options.find((option) => option.long === "--agent-version")
+        ?.mandatory,
+    ).toBe(false);
+    let assignHelp = "";
+    assign.configureOutput({ writeOut: (text) => (assignHelp += text) });
+    assign.outputHelp();
+    expect(assignHelp).toContain("--dynamic-variables");
+    expect(assignHelp).toContain("--set");
+    expect(assignHelp).toContain("--replace");
 
     const phoneNumbers = provider.commands.find(
       (command) => command.name() === "phone-numbers",

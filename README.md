@@ -18,6 +18,14 @@ Upgrade to the latest stable npm release later with:
 vac upgrade
 ```
 
+Set an environment tag's dynamic variables by merging into the current map. `--replace` swaps that tag's map. Dry-run prints the current and next values, and secret-looking keys are masked:
+
+```bash
+vac retell agents tags assign agent_123 staging \
+  --set base_url=https://staging.example.com \
+  --dry-run
+```
+
 Authenticate with an environment variable or the interactive login:
 
 ```bash

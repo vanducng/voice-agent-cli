@@ -31,9 +31,12 @@ Inspect and assign environment tags through the agent namespace:
 vac retell agents tags get agent_123 prod
 vac retell agents tags assign agent_123 prod --agent-version 4 --dry-run
 vac retell agents tags assign agent_123 prod --agent-version 4
+vac retell agents tags assign agent_123 staging \
+  --dynamic-variables '{"base_url":"https://staging.example.com"}' \
+  --dry-run
 ```
 
-The assignment command requires an existing tag and version, preserves the complete tag map and dynamic variables, and verifies the selected tag after the update. Moving `prod` changes production traffic immediately.
+The assignment command requires an existing tag. `--agent-version` moves it. Dynamic-variable flags merge into the selected tag unless `--replace` is set, and the other tags stay as they are. `PATCH /update-agent-root/{agent_id}` sends the complete tag map. The command verifies the selected tag after the update. Secret-looking variable names are masked in command output. Moving `prod`, or changing variables on a tag that traffic uses, takes effect immediately.
 
 Phone-number bindings can resolve through a tag instead of a fixed numeric version:
 

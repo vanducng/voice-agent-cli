@@ -1,4 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { existsSync, unlinkSync, writeFileSync } from "fs";
+import { join } from "path";
+import { tmpdir } from "os";
 import { assignAgentTagCommand, getAgentTagsCommand } from "./tags";
 import * as retellClient from "../../services/retell-client";
 import * as outputFormatter from "../../services/output-formatter";
@@ -218,5 +221,212 @@ describe("agent tag commands", () => {
     expect(outputFormatter.outputSuccess).toHaveBeenCalledWith(
       expect.objectContaining({ dry_run: true, version: 3 }),
     );
+  });
+
+  it("masks secret-looking dynamic variables when reading a tag", async () => {
+    client.get.mockReturnValue(
+      response({
+        ...root,
+        tags: {
+          ...root.tags,
+          staging: {
+            version: 3,
+            dynamic_variables: {
+              service__base_url: "https://staging.example.com",
+              service__api_key: "live-secret",
+            },
+          },
+        },
+      }),
+    );
+
+    await getAgentTagsCommand("agent_1", "staging");
+
+    expect(outputFormatter.outputJson).toHaveBeenCalledWith({
+      agent_id: "agent_1",
+      tag: "staging",
+      version: 3,
+      dynamic_variables: {
+        service__base_url: "https://staging.example.com",
+        service__api_key: "***",
+      },
+    });
+  });
+
+  it("dry-run shows masked current and merged variables without patching", async () => {
+    client.get.mockReturnValue(
+      response({
+        ...root,
+        tags: {
+          ...root.tags,
+          staging: {
+            version: 3,
+            dynamic_variables: {
+              region: "ca",
+              service__api_key: "live-secret",
+            },
+          },
+        },
+      }),
+    );
+
+    await assignAgentTagCommand("agent_1", "staging", {
+      dynamicVariables: JSON.stringify({
+        service__base_url: "https://old.example.com",
+      }),
+      set: ["service__base_url=https://staging.example.com"],
+      dryRun: true,
+    });
+
+    expect(client.agent.listVersions).not.toHaveBeenCalled();
+    expect(client.patch).not.toHaveBeenCalled();
+    expect(outputFormatter.outputSuccess).toHaveBeenCalledWith(
+      expect.objectContaining({
+        dry_run: true,
+        previous_version: 3,
+        version: 3,
+        dynamic_variables: {
+          mode: "merge",
+          current: { region: "ca", service__api_key: "***" },
+          next: {
+            region: "ca",
+            service__api_key: "***",
+            service__base_url: "https://staging.example.com",
+          },
+        },
+      }),
+    );
+  });
+
+  it("merges variables into the selected tag and sends the real values", async () => {
+    const variablesFile = join(
+      tmpdir(),
+      `voice-agent-cli-tag-assign-${process.pid}.json`,
+    );
+    writeFileSync(
+      variablesFile,
+      JSON.stringify({ service__base_url: "https://staging.example.com" }),
+    );
+    client.get.mockReturnValueOnce(response(root)).mockReturnValueOnce(
+      response({
+        ...root,
+        tags: {
+          ...root.tags,
+          staging: {
+            version: 3,
+            dynamic_variables: {
+              region: "ca",
+              service__base_url: "https://staging.example.com",
+            },
+          },
+        },
+      }),
+    );
+
+    try {
+      await assignAgentTagCommand("agent_1", "staging", {
+        dynamicVariablesFile: variablesFile,
+      });
+    } finally {
+      if (existsSync(variablesFile)) unlinkSync(variablesFile);
+    }
+
+    expect(client.patch).toHaveBeenCalledWith("/update-agent-root/agent_1", {
+      body: {
+        tags: {
+          prod: { version: 2, dynamic_variables: { region: "us" } },
+          staging: {
+            version: 3,
+            dynamic_variables: {
+              region: "ca",
+              service__base_url: "https://staging.example.com",
+            },
+          },
+        },
+      },
+      headers: { "If-Match": '"1"' },
+    });
+    expect(outputFormatter.outputSuccess).toHaveBeenCalledWith(
+      expect.objectContaining({
+        dry_run: false,
+        message: "Agent tag variables updated",
+        dynamic_variables: expect.objectContaining({ mode: "merge" }),
+      }),
+    );
+  });
+
+  it("replaces only the selected tag's variables", async () => {
+    client.get.mockReturnValueOnce(response(root)).mockReturnValueOnce(
+      response({
+        ...root,
+        tags: {
+          ...root.tags,
+          prod: {
+            version: 2,
+            dynamic_variables: {
+              service__base_url: "https://prod.example.com",
+            },
+          },
+        },
+      }),
+    );
+
+    await assignAgentTagCommand("agent_1", "prod", {
+      replace: true,
+      set: ["service__base_url=https://prod.example.com"],
+    });
+
+    expect(client.patch).toHaveBeenCalledWith("/update-agent-root/agent_1", {
+      body: {
+        tags: {
+          prod: {
+            version: 2,
+            dynamic_variables: {
+              service__base_url: "https://prod.example.com",
+            },
+          },
+          staging: { version: 3, dynamic_variables: { region: "ca" } },
+        },
+      },
+      headers: { "If-Match": '"1"' },
+    });
+  });
+
+  it("masks secret values in the variable update result", async () => {
+    const verified = {
+      ...root,
+      tags: {
+        ...root.tags,
+        staging: {
+          version: 3,
+          dynamic_variables: {
+            region: "ca",
+            service__api_key: "rotated-secret",
+          },
+        },
+      },
+    };
+    client.get
+      .mockReturnValueOnce(response(root))
+      .mockReturnValueOnce(response(verified));
+
+    await assignAgentTagCommand("agent_1", "staging", {
+      set: ["service__api_key=rotated-secret"],
+    });
+
+    const payload = vi.mocked(outputFormatter.outputSuccess).mock.calls[0][0];
+    expect(JSON.stringify(payload)).not.toContain("rotated-secret");
+    expect(payload).toEqual(
+      expect.objectContaining({
+        dynamic_variables: {
+          mode: "merge",
+          current: { region: "ca" },
+          next: { region: "ca", service__api_key: "***" },
+        },
+      }),
+    );
+    expect(
+      client.patch.mock.calls[0][1].body.tags.staging.dynamic_variables,
+    ).toEqual({ region: "ca", service__api_key: "rotated-secret" });
   });
 });

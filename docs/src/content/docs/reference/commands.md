@@ -57,9 +57,14 @@ vac retell agents tags get agent_123
 vac retell agents tags get agent_123 prod
 vac retell agents tags assign agent_123 prod --agent-version 4 --dry-run
 vac retell agents tags assign agent_123 prod --agent-version 4
+vac retell agents tags assign agent_123 staging \
+  --set base_url=https://staging.example.com \
+  --dry-run
 ```
 
-`assign` accepts an existing tag and agent version only. It preserves every other tag and all tag dynamic variables, then reads the tag again to verify the assignment. Moving a tag immediately changes traffic that resolves through that tag.
+`assign` updates an existing tag. Pass `--agent-version` to move it, variable flags to change its dynamic variables, or both. Omit `--agent-version` to keep the current version. Variable input from `--dynamic-variables`, `--dynamic-variables-file`, and repeatable `--set KEY=VALUE` is merged into the selected tag; `--set` overrides the same key from JSON. `--replace` swaps that tag's entire variable map for the input. Other tags are left unchanged. The command sends `PATCH /update-agent-root/{agent_id}` with the complete tag map, then reads the tag again to verify the change.
+
+Dry-run prints `dynamic_variables.current` and `dynamic_variables.next`. Keys whose names contain `key`, `token`, `secret`, or `password` are printed as `***` in `tags get`, `tags assign`, and dry-run output. The request still sends the real values. Moving a tag, or changing variables on a tag that traffic uses, takes effect immediately.
 
 Bind a phone-number direction to a numeric version or environment tag with the single-agent shorthand:
 
