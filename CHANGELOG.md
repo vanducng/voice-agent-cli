@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/vanducng/voice-agent-cli/compare/v0.8.0...v0.9.0) (2026-10-06)
+
+
+### Features
+
+* **retell:** set agent tag dynamic variables ([1ca5fa0](https://github.com/vanducng/voice-agent-cli/commit/1ca5fa0ff4de29c753cc2225e2d8709203a58c35))
+
 ## [0.8.0](https://github.com/vanducng/voice-agent-cli/compare/v0.7.4...v0.8.0) (2026-09-29)
 
 
