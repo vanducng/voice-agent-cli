@@ -64,7 +64,7 @@ Number fields: `sid`, `phone_number`, `friendly_name`, `trunk_sid`, `voice_url`,
 
 Trunk fields: `sid`, `domain_name`, `friendly_name`, `secure`, `transfer_mode`, `transfer_caller_id`, `recording`, `auth_type`, `disaster_recovery_url`, `disaster_recovery_method`, `cnam_lookup_enabled`, `symmetric_rtp_enabled`, `origination_urls`, `phone_numbers`. Each origination URL includes `sid`, `sip_url`, `enabled`, `priority`, `weight`, and `friendly_name`.
 
-Call fields add `answered_by` and `queue_time`. Filters are `--from`, `--to`, `--status`, `--start-after`, and `--start-before`. Timestamps are UTC ISO-8601. `calls events` returns redacted `request` and `response` summaries for Programmable Voice. Twilio exposes that subresource about 15 minutes after the call ends. Elastic SIP trunk calls return `NOT_FOUND`.
+Call fields add `answered_by` and `queue_time`. Filters are `--from`, `--to`, `--status`, `--start-after`, and `--start-before`. Timestamps are UTC ISO-8601. `--from` and `--to` match that exact value or the same E.164 number inside a SIP URI. Twilio's call list does not, so the CLI filters after the query and keeps reading until the page is full. `calls events` returns redacted `request` and `response` summaries for Programmable Voice. Twilio exposes that subresource about 15 minutes after the call ends. Elastic SIP trunk calls return `NOT_FOUND`.
 
 Message fields are `sid`, `to`, `from`, `status`, `direction`, `error_code`, `error_message`, `messaging_service_sid`, `num_segments`, `date_sent`, and `date_created`. `body` is omitted unless `--include-body` is set. Messaging service get includes the sender-pool phone numbers.
 

@@ -235,7 +235,10 @@ Read the routing before proposing a change:
 vac twilio numbers get +15555550100 --fields sid,phone_number,trunk_sid,voice_url
 vac twilio trunks get TKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 vac twilio calls list --start-after 2026-10-10T00:00:00Z --start-before 2026-10-10T01:00:00Z --limit 20
+vac twilio calls list --to +15555550100 --limit 20
 ```
+
+`--from` and `--to` match an E.164 number or that same number inside a SIP URI. A trunking-originating call often stores `To` as a SIP URI, which Twilio's own filter misses. Keep using the returned `pagination_key` with the same endpoint filter.
 
 `trunks get` includes origination URLs (`sip_url`, `enabled`, `priority`, `weight`), attached phone numbers, `auth_type`, and disaster-recovery settings. Continue with `--pagination-key` while `has_more` is true. Mask phone numbers to the last 4 digits in notes and reports.
 
