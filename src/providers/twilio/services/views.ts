@@ -56,6 +56,11 @@ export interface TrunkView {
   transfer_mode: string | null;
   transfer_caller_id: string | null;
   recording: { mode: string | null; trim: string | null };
+  auth_type: string | null;
+  disaster_recovery_url: string | null;
+  disaster_recovery_method: string | null;
+  cnam_lookup_enabled: boolean;
+  symmetric_rtp_enabled: boolean;
   origination_urls: OriginationView[];
   phone_numbers: TrunkNumberView[];
 }
@@ -68,6 +73,11 @@ export const TRUNK_FIELDS = [
   "transfer_mode",
   "transfer_caller_id",
   "recording",
+  "auth_type",
+  "disaster_recovery_url",
+  "disaster_recovery_method",
+  "cnam_lookup_enabled",
+  "symmetric_rtp_enabled",
   "origination_urls",
   "phone_numbers",
 ] as const;
@@ -84,6 +94,8 @@ export interface CallView {
   trunk_sid: string | null;
   phone_number_sid: string | null;
   parent_call_sid: string | null;
+  answered_by: string | null;
+  queue_time: string | null;
 }
 
 export const CALL_FIELDS = [
@@ -98,6 +110,8 @@ export const CALL_FIELDS = [
   "trunk_sid",
   "phone_number_sid",
   "parent_call_sid",
+  "answered_by",
+  "queue_time",
 ] as const;
 
 type NumberInstance = {
@@ -135,6 +149,11 @@ type TrunkInstance = {
   transferMode?: string;
   transferCallerId?: string;
   recording?: { mode?: string; trim?: string };
+  authType?: string;
+  disasterRecoveryUrl?: string;
+  disasterRecoveryMethod?: string;
+  cnamLookupEnabled?: boolean;
+  symmetricRtpEnabled?: boolean;
 };
 
 type CallInstance = {
@@ -149,6 +168,8 @@ type CallInstance = {
   trunkSid?: string;
   phoneNumberSid?: string;
   parentCallSid?: string;
+  answeredBy?: string;
+  queueTime?: string;
 };
 
 export function mapNumber(number: NumberInstance): NumberView {
@@ -192,6 +213,11 @@ export function mapTrunk(
       mode: emptyToNull(trunk.recording?.mode),
       trim: emptyToNull(trunk.recording?.trim),
     },
+    auth_type: emptyToNull(trunk.authType),
+    disaster_recovery_url: emptyToNull(trunk.disasterRecoveryUrl),
+    disaster_recovery_method: emptyToNull(trunk.disasterRecoveryMethod),
+    cnam_lookup_enabled: trunk.cnamLookupEnabled === true,
+    symmetric_rtp_enabled: trunk.symmetricRtpEnabled === true,
     origination_urls: originationUrls.map(mapOrigination),
     phone_numbers: phoneNumbers.map((number) => ({
       sid: number.sid,
@@ -214,6 +240,8 @@ export function mapCall(call: CallInstance): CallView {
     trunk_sid: emptyToNull(call.trunkSid),
     phone_number_sid: emptyToNull(call.phoneNumberSid),
     parent_call_sid: emptyToNull(call.parentCallSid),
+    answered_by: emptyToNull(call.answeredBy),
+    queue_time: emptyToNull(call.queueTime),
   };
 }
 

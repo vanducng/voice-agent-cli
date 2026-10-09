@@ -13,6 +13,14 @@ export class CliFailure extends Error {
   }
 }
 
+export function isNotFound(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    "status" in error &&
+    (error as { status?: number }).status === 404
+  );
+}
+
 export function outputJson(data: unknown): void {
   console.log(JSON.stringify(data, null, 2));
 }

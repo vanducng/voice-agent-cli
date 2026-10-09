@@ -46,9 +46,15 @@ vac [--help] [--version]
 | -------------------- | ----------------------------------------------------------------------- |
 | `login`              | Save Twilio credentials                                                 |
 | `numbers`            | List, get, and attach or detach a number's Elastic SIP trunk           |
-| `trunks`             | List and get trunks, origination URLs, and attached numbers            |
-| `trunks origination` | Add or remove an origination URL                                        |
-| `calls`              | List and get calls                                                      |
+| `trunks`             | List, get, and update trunk routing settings                            |
+| `trunks origination` | Add, update, or remove an origination URL                               |
+| `trunks credentials` | List, associate, or remove a credential list                            |
+| `trunks ip-access-control-lists` | List, associate, or remove an IP access control list        |
+| `calls`              | List and get calls, and list redacted call events                       |
+| `messages`           | List and get SMS messages without the body unless requested             |
+| `messaging-services` | List and get messaging services and their sender pools                  |
+| `recordings`         | List and get recording metadata                                         |
+| `alerts`             | List and get Monitor alerts                                             |
 
 See [Twilio](../providers/twilio/) for authentication, fields, and the dry-run contract.
 

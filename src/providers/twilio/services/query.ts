@@ -8,6 +8,12 @@ const SID_PREFIX = {
   trunk: "TK",
   origination: "OU",
   call: "CA",
+  credential: "CL",
+  ipAccessControlList: "AL",
+  messagingService: "MG",
+  alert: "NO",
+  recording: "RE",
+  ipAddress: "IP",
 } as const;
 
 const CALL_STATUSES = [
@@ -40,6 +46,13 @@ export function sid(
   const prefix = SID_PREFIX[kind];
   if (!new RegExp(`^${prefix}[0-9a-fA-F]{32}$`).test(value)) {
     fail(`${label} must be a ${prefix} SID.`);
+  }
+  return value;
+}
+
+export function messageSid(value: string): string {
+  if (!/^(?:SM|MM)[0-9a-fA-F]{32}$/.test(value)) {
+    fail("Message must be an SM or MM SID.");
   }
   return value;
 }
@@ -191,9 +204,38 @@ export function parseWeight(value: string): number {
 
 export function parseEnabled(value: string | undefined): boolean {
   if (value === undefined) return true;
+  const parsed = parseOptionalBool(value, "--enabled");
+  return parsed ?? true;
+}
+
+export function parseOptionalBool(
+  value: string | undefined,
+  flag: string,
+): boolean | undefined {
+  if (value === undefined) return undefined;
   if (value === "true") return true;
   if (value === "false") return false;
-  fail("--enabled must be true or false.");
+  fail(`${flag} must be true or false.`);
+}
+
+export function oneOf(
+  value: string,
+  allowed: readonly string[],
+  flag: string,
+): string {
+  if (!allowed.includes(value)) {
+    fail(`${flag} must be one of: ${allowed.join(", ")}.`);
+  }
+  return value;
+}
+
+export function parseHttpUrl(value: string, flag: string): string {
+  const trimmed = value.trim();
+  if (trimmed.toLowerCase() === "none") return "";
+  if (!/^https?:\/\//i.test(trimmed) || /\s/.test(trimmed)) {
+    fail(`${flag} must be an http(s) URL or none.`);
+  }
+  return trimmed;
 }
 
 export function parseFriendlyName(

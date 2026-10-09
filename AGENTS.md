@@ -10,7 +10,7 @@ Use [skills/voice-agent/SKILL.md](skills/voice-agent/SKILL.md) when operating th
 
 - `src/core/` - provider-neutral response, argument, pagination, and version helpers
 - `src/providers/retell/` - Retell commands, services, and SDK-derived types
-- `src/providers/twilio/` - Twilio numbers, trunks, calls, and credentials
+- `src/providers/twilio/` - Twilio numbers, trunks, calls, messages, recordings, and alerts
 - `scripts/` - package and read-only live smoke tests
 - `docs/` - Astro and Starlight documentation site
 - `skills/` - reusable agent skills for this CLI

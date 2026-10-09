@@ -36,7 +36,7 @@ vac retell agents list --fields agent_id,agent_name
 vac retell login
 ```
 
-Inspect Twilio numbers, Elastic SIP trunks, and calls:
+Inspect Twilio numbers, Elastic SIP trunks, messages, and alerts:
 
 ```bash
 export TWILIO_ACCOUNT_SID=your_account_sid

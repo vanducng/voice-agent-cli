@@ -20,7 +20,7 @@ The boundary is concrete:
 | `src/commands/`         | Provider-neutral user commands such as self-upgrade            |
 | `src/core/`             | Provider-neutral parsing, pagination, and error helpers        |
 | `src/providers/retell/` | Retell commands, configuration, SDK access, prompts, and types |
-| `src/providers/twilio/` | Twilio numbers, trunks, calls, configuration, and SDK access  |
+| `src/providers/twilio/` | Twilio numbers, trunks, calls, messages, alerts, configuration, and SDK access |
 
 `src/architecture.test.ts` fails if a `retell-sdk` import appears outside `src/providers/retell/`, or if a `twilio` import appears outside `src/providers/twilio/`.
 

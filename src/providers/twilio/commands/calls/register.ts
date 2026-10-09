@@ -1,9 +1,10 @@
 import type { Command } from "commander";
+import { listCallEventsCommand } from "./events";
 import { getCallCommand } from "./get";
 import { listCallsCommand } from "./list";
 
 const fields =
-  "sid, from, to, status, direction, start_time, end_time, duration, trunk_sid, phone_number_sid, parent_call_sid";
+  "sid, from, to, status, direction, start_time, end_time, duration, trunk_sid, phone_number_sid, parent_call_sid, answered_by, queue_time";
 
 export function registerCallCommands(program: Command): void {
   const calls = program.command("calls").description("Inspect voice calls");
@@ -51,5 +52,24 @@ Examples:
     )
     .action(async (callSid, options) => {
       await getCallCommand(callSid, options);
+    });
+
+  calls
+    .command("events <call_sid>")
+    .description("List redacted Programmable Voice request and response events")
+    .option("--limit <n>", "Page size, from 1 to 1000")
+    .option("--pagination-key <key>", "PageToken from the previous page")
+    .option("--fields <fields>", "Comma-separated fields to return")
+    .addHelpText(
+      "after",
+      `
+Fields: request, response
+
+Examples:
+  $ vac twilio calls events CAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX --limit 20
+`,
+    )
+    .action(async (callSid, options) => {
+      await listCallEventsCommand(callSid, options);
     });
 }

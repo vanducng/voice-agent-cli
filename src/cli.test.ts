@@ -164,7 +164,7 @@ describe("voice-agent CLI", () => {
     );
   });
 
-  it("registers Twilio login, numbers, trunks, and calls", () => {
+  it("registers Twilio login, routing, messages, and diagnostics", () => {
     const provider = createProgram().commands.find(
       (command) => command.name() === "twilio",
     )!;
@@ -174,6 +174,10 @@ describe("voice-agent CLI", () => {
       "numbers",
       "trunks",
       "calls",
+      "messages",
+      "messaging-services",
+      "recordings",
+      "alerts",
     ]);
 
     const numbers = provider.commands.find(
@@ -209,6 +213,22 @@ describe("voice-agent CLI", () => {
       ]),
     );
     expect(remove.options.map((option) => option.long)).toContain("--dry-run");
+    const updateOrigination = origination.commands.find(
+      (command) => command.name() === "update",
+    )!;
+    expect(updateOrigination.options.map((option) => option.long)).toEqual(
+      expect.arrayContaining(["--sip-url", "--enabled", "--dry-run"]),
+    );
+    const updateTrunk = trunks.commands.find(
+      (command) => command.name() === "update",
+    )!;
+    expect(updateTrunk.options.map((option) => option.long)).toEqual(
+      expect.arrayContaining([
+        "--disaster-recovery-url",
+        "--recording-mode",
+        "--dry-run",
+      ]),
+    );
 
     const calls = provider.commands.find(
       (command) => command.name() === "calls",

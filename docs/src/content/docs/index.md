@@ -36,6 +36,6 @@ See [Install and run](./start-here/install/) for source installation and provide
 
 - Learn why provider behavior stays isolated in [Provider model](./core-concepts/providers/).
 - Configure Retell and Twilio credentials in [Configuration](./reference/configuration/).
-- Inspect Twilio numbers and trunks in [Twilio](./providers/twilio/).
+- Inspect Twilio numbers, trunks, messages, and alerts in [Twilio](./providers/twilio/).
 - Review upcoming API changes in [Retell compatibility](./providers/retell/compatibility/).
 - Edit draft prompts safely with the [Prompt workflow](./guides/prompts/).

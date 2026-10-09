@@ -130,6 +130,16 @@ try {
     ["twilio", "trunks", "origination", "--help"],
     temp,
   );
+  const twilioMessagesHelp = run(
+    executable(prefix, "vac"),
+    ["twilio", "messages", "--help"],
+    temp,
+  );
+  const twilioAlertsHelp = run(
+    executable(prefix, "vac"),
+    ["twilio", "alerts", "--help"],
+    temp,
+  );
 
   if (
     !vacRootHelp.includes("vac") ||
@@ -147,7 +157,12 @@ try {
     !twilioHelp.includes("calls") ||
     !twilioNumbersHelp.includes("update") ||
     !twilioTrunksHelp.includes("add") ||
-    !twilioTrunksHelp.includes("remove")
+    !twilioTrunksHelp.includes("update") ||
+    !twilioTrunksHelp.includes("remove") ||
+    !twilioHelp.includes("messages") ||
+    !twilioHelp.includes("alerts") ||
+    !twilioMessagesHelp.includes("list") ||
+    !twilioAlertsHelp.includes("get")
   ) {
     throw new Error("installed Twilio help is missing a command");
   }
