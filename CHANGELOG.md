@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/vanducng/voice-agent-cli/compare/v0.9.0...v0.10.0) (2026-10-09)
+
+
+### Features
+
+* **twilio:** add a Twilio provider for numbers, trunks, calls, and diagnostics ([#32](https://github.com/vanducng/voice-agent-cli/issues/32)) ([abe40a3](https://github.com/vanducng/voice-agent-cli/commit/abe40a3c77681027e35ab4c113a2715a0c5d400d))
+
 ## [0.9.0](https://github.com/vanducng/voice-agent-cli/compare/v0.8.0...v0.9.0) (2026-10-06)
 
 
