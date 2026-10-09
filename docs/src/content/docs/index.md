@@ -3,7 +3,7 @@ title: Voice Agent CLI
 description: Provider-neutral command line tools for voice agents
 template: splash
 hero:
-  tagline: Manage voice agents through a stable JSON-first command line interface. Retell is the first and only provider today.
+  tagline: Manage voice agents through a stable JSON-first command line interface. Retell and Twilio are the current providers.
   actions:
     - text: Install and run
       link: ./start-here/install/
@@ -15,7 +15,7 @@ hero:
 
 ## One shell, explicit providers
 
-`vac` is the canonical executable. Provider commands live below an explicit namespace, so current commands start with `vac retell`. `voice-agent` is an equivalent long alias.
+`vac` is the canonical executable. Provider commands live below an explicit namespace, so current commands start with `vac retell` or `vac twilio`. `voice-agent` is an equivalent long alias.
 
 ```bash
 vac retell agents list --fields agent_id,agent_name
@@ -35,6 +35,7 @@ See [Install and run](./start-here/install/) for source installation and provide
 ## Where to go next
 
 - Learn why provider behavior stays isolated in [Provider model](./core-concepts/providers/).
-- Configure Retell credentials in [Configuration](./reference/configuration/).
+- Configure Retell and Twilio credentials in [Configuration](./reference/configuration/).
+- Inspect Twilio numbers and trunks in [Twilio](./providers/twilio/).
 - Review upcoming API changes in [Retell compatibility](./providers/retell/compatibility/).
 - Edit draft prompts safely with the [Prompt workflow](./guides/prompts/).

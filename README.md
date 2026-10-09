@@ -1,6 +1,6 @@
 # Voice Agent CLI
 
-Provider-neutral CLI for managing voice agents, calls, prompts, and related resources. Retell is the first and only provider today.
+Provider-neutral CLI for managing voice agents, calls, prompts, and related resources. Retell and Twilio are the current providers.
 
 The package is `voice-agent-cli`. It requires Node.js 22 or newer and provides `vac` as the canonical binary plus `voice-agent` as an equivalent alias.
 
@@ -34,6 +34,16 @@ vac retell agents list --fields agent_id,agent_name
 
 # Or save provider-scoped credentials:
 vac retell login
+```
+
+Inspect Twilio numbers, Elastic SIP trunks, and calls:
+
+```bash
+export TWILIO_ACCOUNT_SID=your_account_sid
+export TWILIO_AUTH_TOKEN=your_auth_token
+vac twilio numbers list --limit 20 --fields sid,phone_number,trunk_sid
+vac twilio trunks list --limit 20
+vac twilio login
 ```
 
 ## Develop from source

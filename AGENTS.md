@@ -2,7 +2,7 @@
 
 ## Project
 
-Voice Agent CLI is a provider-neutral TypeScript CLI. The npm package is `voice-agent-cli`; `vac` is the canonical binary and `voice-agent` is an equivalent alias. Retell is the first provider.
+Voice Agent CLI is a provider-neutral TypeScript CLI. The npm package is `voice-agent-cli`; `vac` is the canonical binary and `voice-agent` is an equivalent alias. Retell is the first provider. Twilio is the second.
 
 Use [skills/voice-agent/SKILL.md](skills/voice-agent/SKILL.md) when operating the installed CLI or building agent automation around it.
 
@@ -10,6 +10,7 @@ Use [skills/voice-agent/SKILL.md](skills/voice-agent/SKILL.md) when operating th
 
 - `src/core/` - provider-neutral response, argument, pagination, and version helpers
 - `src/providers/retell/` - Retell commands, services, and SDK-derived types
+- `src/providers/twilio/` - Twilio numbers, trunks, calls, and credentials
 - `scripts/` - package and read-only live smoke tests
 - `docs/` - Astro and Starlight documentation site
 - `skills/` - reusable agent skills for this CLI

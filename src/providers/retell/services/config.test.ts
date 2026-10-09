@@ -173,6 +173,56 @@ describe("config service", () => {
     expect(readFileSync(legacyPath, "utf-8")).toBe(legacyBefore);
   });
 
+  it("preserves other providers when saving Retell credentials", () => {
+    const path = join(homeDir, ".config", "voice-agent", "config.json");
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(
+      path,
+      JSON.stringify({
+        providers: {
+          twilio: {
+            accountSid: "AC" + "1".repeat(32),
+            authToken: "stored-token-value",
+          },
+        },
+      }),
+    );
+
+    saveConfig(
+      { apiKey: "saved-global-key", defaultFormat: "json" },
+      { scope: "global", homeDir },
+    );
+
+    expect(JSON.parse(readFileSync(path, "utf-8"))).toEqual({
+      providers: {
+        twilio: {
+          accountSid: "AC" + "1".repeat(32),
+          authToken: "stored-token-value",
+        },
+        retell: { apiKey: "saved-global-key", defaultFormat: "json" },
+      },
+    });
+  });
+
+  it("skips a provider file that has no Retell credentials", () => {
+    const local = getLocalConfigFilePath({ cwd });
+    mkdirSync(dirname(local), { recursive: true });
+    writeFileSync(
+      local,
+      JSON.stringify({
+        providers: {
+          twilio: {
+            accountSid: "AC" + "2".repeat(32),
+            authToken: "stored-token-value",
+          },
+        },
+      }),
+    );
+    writeConfig(getXdgConfigFilePath({ xdgConfigHome }), "xdg-key");
+
+    expect(getConfig({ cwd, homeDir, xdgConfigHome }).apiKey).toBe("xdg-key");
+  });
+
   it("saves local config using the new file and schema", () => {
     const path = saveConfig(
       { apiKey: "saved-local-key", defaultFormat: "json" },

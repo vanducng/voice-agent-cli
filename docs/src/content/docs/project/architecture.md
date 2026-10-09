@@ -3,7 +3,7 @@ title: System architecture
 description: Process flow, module boundaries, configuration, and local persistence
 ---
 
-Voice Agent CLI is a single-process Node.js command line application. The shell is provider-neutral and integrations are provider-owned. Retell is the only provider today.
+Voice Agent CLI is a single-process Node.js command line application. The shell is provider-neutral and integrations are provider-owned. Retell and Twilio are the current providers.
 
 ```text
 process argv
@@ -18,8 +18,10 @@ src/cli.ts  -> vac, root commands, and provider registration
     |
     +--> src/providers/retell/register.ts
     |
+    +--> src/providers/twilio/register.ts
+    |
     v
-provider command -> provider service -> retell-sdk or explicit Retell path
+provider command -> provider service -> provider SDK or explicit provider path
     |
     v
 JSON stdout or structured JSON stderr
@@ -34,8 +36,9 @@ JSON stdout or structured JSON stderr
 | `src/providers/retell/commands/` | Retell command registration and actions                   | Root provider selection                   |
 | `src/providers/retell/services/` | Config, SDK client, prompts, output, and Retell helpers   | Other providers                           |
 | `src/providers/retell/types/`    | Retell request and response types                         | Shared provider abstractions              |
+| `src/providers/twilio/`          | Twilio commands, credentials, and SDK access              | Retell resources and other providers      |
 
-`src/architecture.test.ts` enforces the Retell SDK import boundary. `src/cli.test.ts` enforces `retell` as the only current provider, checks the provider-neutral upgrade command, and verifies every registered group.
+`src/architecture.test.ts` enforces each provider SDK import boundary. `src/cli.test.ts` checks `upgrade`, `retell`, and `twilio`, and verifies every registered group.
 
 ## Request flow
 
@@ -47,7 +50,7 @@ Inputs cross provider-neutral parsers where appropriate. Outputs pass through `s
 
 The CLI can write three kinds of local state:
 
-- Provider-scoped authentication config from `src/providers/retell/services/config.ts`.
+- Provider-scoped authentication config from `src/providers/retell/services/config.ts` and `src/providers/twilio/services/config.ts`. Both write `providers.<name>` in the same file and leave the other provider in place.
 - Pulled prompt directories from `src/providers/retell/commands/prompts/pull.ts`.
 - Optional tool-export JSON files from `src/providers/retell/commands/tools/export.ts` when `--output` is provided.
 

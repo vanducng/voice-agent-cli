@@ -64,8 +64,9 @@ describe("package metadata", () => {
     expect(packageJson.scripts.build).toContain("--target=node22");
   });
 
-  it("pins the Retell SDK and does not ship dotenv", () => {
+  it("pins provider SDKs and does not ship dotenv", () => {
     expect(packageJson.dependencies["retell-sdk"]).toBe("6.0.1");
+    expect(packageJson.dependencies.twilio).toBe("6.1.2");
     expect(packageJson.dependencies).not.toHaveProperty("dotenv");
   });
 

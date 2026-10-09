@@ -32,16 +32,18 @@ afterEach(() => {
 });
 
 describe("voice-agent CLI", () => {
-  it("exposes the upgrade utility and Retell as the only provider", () => {
+  it("exposes the upgrade utility and the Retell and Twilio providers", () => {
     const program = createProgram();
 
     expect(program.name()).toBe("vac");
     expect(program.commands.map((command) => command.name())).toEqual([
       "upgrade",
       "retell",
+      "twilio",
     ]);
     expect(program.helpInformation()).toContain("upgrade");
     expect(program.helpInformation()).toContain("retell");
+    expect(program.helpInformation()).toContain("twilio");
   });
 
   it("registers every existing command group under Retell", () => {
@@ -158,6 +160,70 @@ describe("voice-agent CLI", () => {
       expect.arrayContaining([
         "--inbound-agent-version",
         "--outbound-agent-version",
+      ]),
+    );
+  });
+
+  it("registers Twilio login, numbers, trunks, and calls", () => {
+    const provider = createProgram().commands.find(
+      (command) => command.name() === "twilio",
+    )!;
+
+    expect(provider.commands.map((command) => command.name())).toEqual([
+      "login",
+      "numbers",
+      "trunks",
+      "calls",
+    ]);
+
+    const numbers = provider.commands.find(
+      (command) => command.name() === "numbers",
+    )!;
+    const update = numbers.commands.find(
+      (command) => command.name() === "update",
+    )!;
+    expect(update.options.map((option) => option.long)).toEqual(
+      expect.arrayContaining(["--trunk", "--dry-run"]),
+    );
+
+    const trunks = provider.commands.find(
+      (command) => command.name() === "trunks",
+    )!;
+    const origination = trunks.commands.find(
+      (command) => command.name() === "origination",
+    )!;
+    const add = origination.commands.find(
+      (command) => command.name() === "add",
+    )!;
+    const remove = origination.commands.find(
+      (command) => command.name() === "remove",
+    )!;
+    expect(add.options.map((option) => option.long)).toEqual(
+      expect.arrayContaining([
+        "--sip-url",
+        "--priority",
+        "--weight",
+        "--enabled",
+        "--friendly-name",
+        "--dry-run",
+      ]),
+    );
+    expect(remove.options.map((option) => option.long)).toContain("--dry-run");
+
+    const calls = provider.commands.find(
+      (command) => command.name() === "calls",
+    )!;
+    const list = calls.commands.find((command) => command.name() === "list")!;
+    expect(list.options.map((option) => option.long)).toEqual(
+      expect.arrayContaining([
+        "--from",
+        "--to",
+        "--status",
+        "--start-after",
+        "--start-before",
+        "--limit",
+        "--pagination-key",
+        "--fields",
       ]),
     );
   });

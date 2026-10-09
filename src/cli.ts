@@ -4,6 +4,7 @@ import { join } from "path";
 import { registerUpgradeCommand } from "./commands/upgrade";
 import { reportCliError, ReportedCliError } from "./core/cli-response";
 import { registerRetellCommands } from "./providers/retell/register";
+import { registerTwilioCommands } from "./providers/twilio/register";
 
 const { version } = JSON.parse(
   readFileSync(join(__dirname, "../package.json"), "utf8"),
@@ -19,6 +20,7 @@ export function createProgram(): Command {
 
   registerUpgradeCommand(program, version);
   registerRetellCommands(program);
+  registerTwilioCommands(program);
   return program;
 }
 

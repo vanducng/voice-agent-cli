@@ -3,7 +3,7 @@ title: Quick start
 description: Authenticate and inspect Retell resources
 ---
 
-Retell is the only provider currently registered by `src/providers/retell/register.ts`.
+`src/cli.ts` registers Retell and Twilio. Start with Retell for voice agents, or with Twilio for numbers, Elastic SIP trunks, and calls.
 
 ## Authenticate
 
