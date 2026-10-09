@@ -3,12 +3,13 @@ title: Command reference
 description: Current provider and resource command groups
 ---
 
-The root command exposes one provider-neutral utility and one provider namespace:
+The root command exposes one provider-neutral utility and two provider namespaces:
 
 ```text
 vac [--help] [--version]
 ├── upgrade
-└── retell [--json]
+├── retell [--json]
+└── twilio
 ```
 
 `vac upgrade` installs the latest stable `voice-agent-cli` release through the active npm installation and returns structured verification guidance.
@@ -38,6 +39,24 @@ vac [--help] [--version]
 | `phone-numbers`   | Purchase, import, bind, update, and release numbers              |
 | `voices`          | List, search, clone, and add voice resources                     |
 | `kb`              | Manage knowledge bases and sources                               |
+
+`src/providers/twilio/register.ts` registers:
+
+| Group                | Purpose                                                                 |
+| -------------------- | ----------------------------------------------------------------------- |
+| `login`              | Save Twilio credentials                                                 |
+| `numbers`            | List, get, and attach or detach a number's Elastic SIP trunk           |
+| `trunks`             | List, get, and update trunk routing settings                            |
+| `trunks origination` | Add, update, or remove an origination URL                               |
+| `trunks credentials` | List, associate, or remove a credential list                            |
+| `trunks ip-access-control-lists` | List, associate, or remove an IP access control list        |
+| `calls`              | List and get calls, and list redacted call events                       |
+| `messages`           | List and get SMS messages without the body unless requested             |
+| `messaging-services` | List and get messaging services and their sender pools                  |
+| `recordings`         | List and get recording metadata                                         |
+| `alerts`             | List and get Monitor alerts                                             |
+
+See [Twilio](../providers/twilio/) for authentication, fields, and the dry-run contract.
 
 Generated help is the exact reference for subcommands, required arguments, and flags:
 

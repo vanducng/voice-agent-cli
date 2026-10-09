@@ -1,6 +1,6 @@
 ---
 title: Configuration
-description: Retell authentication schema, paths, and precedence
+description: Provider authentication schema, paths, and precedence
 ---
 
 `RETELL_API_KEY` has the highest precedence:
@@ -46,3 +46,14 @@ New writes use mode `0600` and this provider-scoped schema:
 The last three are read-only legacy fallbacks. The legacy flat `{ "apiKey": "...", "defaultFormat": "json" }` schema is also read but never written back.
 
 The CLI does not automatically load `.env`. Export the variable into the command process or use `vac retell login`.
+
+## Twilio
+
+`TWILIO_ACCOUNT_SID` plus `TWILIO_AUTH_TOKEN`, or `TWILIO_ACCOUNT_SID` plus `TWILIO_API_KEY` and `TWILIO_API_SECRET`, overrides the saved file. If any of those variables is set, the file is not used to fill in the rest. Setting both an auth token and an API key is rejected.
+
+```bash
+vac twilio login
+vac twilio login --local
+```
+
+Login is interactive and TTY-only. It writes `providers.twilio` into the same file Retell uses, without removing `providers.retell`. Local `./.voice-agent.json` overrides the global file. Search order is the environment, then the local file, then `$XDG_CONFIG_HOME/voice-agent/config.json`.

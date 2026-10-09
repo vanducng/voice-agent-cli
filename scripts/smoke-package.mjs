@@ -119,14 +119,52 @@ try {
     temp,
   );
 
+  const twilioHelp = run(executable(prefix, "vac"), ["twilio", "--help"], temp);
+  const twilioNumbersHelp = run(
+    executable(prefix, "vac"),
+    ["twilio", "numbers", "--help"],
+    temp,
+  );
+  const twilioTrunksHelp = run(
+    executable(prefix, "vac"),
+    ["twilio", "trunks", "origination", "--help"],
+    temp,
+  );
+  const twilioMessagesHelp = run(
+    executable(prefix, "vac"),
+    ["twilio", "messages", "--help"],
+    temp,
+  );
+  const twilioAlertsHelp = run(
+    executable(prefix, "vac"),
+    ["twilio", "alerts", "--help"],
+    temp,
+  );
+
   if (
     !vacRootHelp.includes("vac") ||
     !vacRootHelp.includes("upgrade") ||
-    !vacRootHelp.includes("retell")
+    !vacRootHelp.includes("retell") ||
+    !vacRootHelp.includes("twilio")
   ) {
     throw new Error(
       "installed root help is missing the CLI, upgrade, or provider command",
     );
+  }
+  if (
+    !twilioHelp.includes("numbers") ||
+    !twilioHelp.includes("trunks") ||
+    !twilioHelp.includes("calls") ||
+    !twilioNumbersHelp.includes("update") ||
+    !twilioTrunksHelp.includes("add") ||
+    !twilioTrunksHelp.includes("update") ||
+    !twilioTrunksHelp.includes("remove") ||
+    !twilioHelp.includes("messages") ||
+    !twilioHelp.includes("alerts") ||
+    !twilioMessagesHelp.includes("list") ||
+    !twilioAlertsHelp.includes("get")
+  ) {
+    throw new Error("installed Twilio help is missing a command");
   }
   if (vacRootHelp !== aliasRootHelp || vacRetellHelp !== aliasRetellHelp) {
     throw new Error("installed vac and voice-agent binaries differ");

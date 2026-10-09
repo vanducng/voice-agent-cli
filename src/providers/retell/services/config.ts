@@ -8,6 +8,10 @@ import {
 import { dirname, join } from "path";
 import * as os from "os";
 import { z } from "zod";
+import {
+  ProviderConfigDocumentError,
+  withProvider,
+} from "../../../core/provider-config-document";
 
 const ProviderConfigSchema = z.object({
   apiKey: z.string().min(1, "API key cannot be empty"),
@@ -108,6 +112,10 @@ function readConfigFile(configPath: string): Config | null {
       return current.data.providers.retell;
     }
 
+    if (isProviderDocumentWithoutRetell(parsed)) {
+      return null;
+    }
+
     const legacy = ProviderConfigSchema.safeParse(parsed);
     if (legacy.success) {
       return legacy.data;
@@ -131,6 +139,18 @@ function readConfigFile(configPath: string): Config | null {
     }
     throw error;
   }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isProviderDocumentWithoutRetell(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    isRecord(value.providers) &&
+    !("retell" in value.providers)
+  );
 }
 
 function getApiKeyFromEnv(): string | null {
@@ -175,15 +195,21 @@ export function saveConfig(
 
   const configPath = getConfigPathForScope(options);
   try {
+    const document = withProvider(configPath, "retell", providerConfig);
     mkdirSync(dirname(configPath), { recursive: true });
-    writeFileSync(
-      configPath,
-      JSON.stringify({ providers: { retell: providerConfig } }, null, 2),
-      { encoding: "utf-8", mode: CONFIG_FILE_PERMISSIONS },
-    );
+    writeFileSync(configPath, JSON.stringify(document, null, 2), {
+      encoding: "utf-8",
+      mode: CONFIG_FILE_PERMISSIONS,
+    });
     chmodSync(configPath, CONFIG_FILE_PERMISSIONS);
     return configPath;
   } catch (error) {
+    if (error instanceof ProviderConfigDocumentError) {
+      throw new ConfigError(error.message, error.code);
+    }
+    if (error instanceof ConfigError) {
+      throw error;
+    }
     const message = error instanceof Error ? error.message : String(error);
     throw new ConfigError(`Failed to save config: ${message}`, "WRITE_ERROR");
   }

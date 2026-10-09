@@ -1,6 +1,6 @@
 ---
 name: voice-agent
-description: Operate Voice Agent CLI through the `vac` or `voice-agent` binary. Use when an agent needs to install or upgrade the CLI, authenticate a provider, discover commands, inspect or mutate Retell resources, automate JSON output, follow structured error recovery, or verify CLI behavior safely.
+description: Operate Voice Agent CLI through the `vac` or `voice-agent` binary. Use when an agent needs to install or upgrade the CLI, authenticate a provider, discover commands, inspect or mutate Retell resources, inspect or repair Twilio numbers, Elastic SIP trunks, origination URLs, messages, recordings, alerts, and calls, automate JSON output, follow structured error recovery, or verify CLI behavior safely.
 ---
 
 # Voice Agent
@@ -203,6 +203,68 @@ vac retell chats rerun-analysis chat_123
 ```
 
 Retrieve the resource before and after the mutation. Do not automatically retry either command because rerunning analysis can replace results and incur work.
+
+## Inspect Twilio voice routing
+
+Reads are safe. A write needs explicit authorization for that exact change, a fresh confirmation, and `--dry-run` first. Do not infer authorization from an earlier read or from a different resource.
+
+Discover the command before acting:
+
+```bash
+vac twilio --help
+vac twilio numbers --help
+vac twilio trunks origination --help
+vac twilio calls list --help
+vac twilio messages list --help
+vac twilio alerts list --help
+```
+
+Authenticate with one complete set of environment variables, or with saved login. If any of `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_API_KEY`, or `TWILIO_API_SECRET` is set, that environment is the only credential source. Do not mix it with the file.
+
+```bash
+vac twilio numbers list --limit 1 --fields sid,phone_number,trunk_sid
+```
+
+Use either `TWILIO_ACCOUNT_SID` and `TWILIO_AUTH_TOKEN`, or `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY`, and `TWILIO_API_SECRET`. If the bounded read fails with `NO_CONFIG`, ask the user to run `vac twilio login` in their interactive terminal. Login requires a TTY and stores credentials beside other providers in `$XDG_CONFIG_HOME/voice-agent/config.json`, falling back to `~/.config/voice-agent/config.json`. `./.voice-agent.json` overrides that file. Do not run interactive login from a non-interactive agent shell, inspect `.env`, ask the user to expose a secret, or read the saved configuration back.
+
+For `AUTH_ERROR` or `CONFLICTING_CREDENTIALS`, check only which variable names are present. Never print credential values. If environment variables are set, ask the user to unset or replace them because they override saved login.
+
+Read the routing before proposing a change:
+
+```bash
+vac twilio numbers get +15555550100 --fields sid,phone_number,trunk_sid,voice_url
+vac twilio trunks get TKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+vac twilio calls list --start-after 2026-10-10T00:00:00Z --start-before 2026-10-10T01:00:00Z --limit 20
+```
+
+`trunks get` includes origination URLs (`sip_url`, `enabled`, `priority`, `weight`), attached phone numbers, `auth_type`, and disaster-recovery settings. Continue with `--pagination-key` while `has_more` is true. Mask phone numbers to the last 4 digits in notes and reports.
+
+Message list and get omit `body` unless `--include-body` is set. Alert list omits alert text. Alert get redacts it. Never request or print request variables, response bodies, recording media, or credential passwords. `calls events` returns redacted Programmable Voice request and response summaries. Twilio exposes them about 15 minutes after the call ends. Elastic SIP trunk calls return `NOT_FOUND` because they have no events subresource.
+
+Dry-run the exact write and show the user `before` and `after`:
+
+```bash
+vac twilio numbers update +15555550100 \
+  --trunk TKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx --dry-run
+vac twilio numbers update PNxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \
+  --trunk none --dry-run
+vac twilio trunks origination add TKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \
+  --sip-url sip:example.pstn.example.com --priority 10 --weight 10 --dry-run
+vac twilio trunks origination update TKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \
+  OUxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx --enabled false --dry-run
+vac twilio trunks origination remove TKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \
+  OUxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx --dry-run
+vac twilio trunks update TKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \
+  --disaster-recovery-url none --recording-mode do-not-record --dry-run
+vac twilio trunks credentials associate TKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \
+  --credential-list CLxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx --dry-run
+vac twilio trunks ip-access-control-lists associate TKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \
+  --ip-access-control-list ALxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx --dry-run
+```
+
+`--trunk none` detaches the number. `--disaster-recovery-url none` clears that URL. `--sip-url` must be a `sip:` URI. Credential and IP access control commands associate an existing SID. After the user explicitly authorizes that command, run it once without `--dry-run`. The command reads the resource back and returns `dry_run: false`. If it returns `RECONCILIATION_FAILED`, read the resource again and do not repeat the write until that read shows the change is still absent. Rate limit, server, timeout, and connection failures on a write are not retryable for the same reason.
+
+Do not send messages, place calls, purchase or release numbers, create or delete trunks, rename a trunk domain, create SIP credentials, or download recording media.
 
 ## Handle failures for another agent
 

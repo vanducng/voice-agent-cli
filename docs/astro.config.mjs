@@ -43,6 +43,10 @@ export default defineConfig({
           ],
         },
         {
+          label: "Providers / Twilio",
+          items: [{ label: "Twilio", slug: "providers/twilio" }],
+        },
+        {
           label: "Guides",
           items: [
             { label: "Prompt workflow", slug: "guides/prompts" },
