@@ -3,7 +3,7 @@ title: Retell API compatibility
 description: Current Retell SDK, endpoint, and payload compatibility
 ---
 
-This page records the verified Retell contract as of 2026-09-29. The package pins `retell-sdk` to exactly `6.0.1`.
+This page records the verified Retell contract as of 2026-11-10. The package pins `retell-sdk` to exactly `6.2.19`.
 
 The CLI calls only current endpoints. It requires the current paginated response envelope with `items` and preserves optional `pagination_key` and `has_more` metadata. Legacy arrays and wrapper objects are rejected with an explicit contract error.
 
@@ -21,17 +21,18 @@ The CLI calls only current endpoints. It requires the current paginated response
 | Conversation flows list | `GET /v2/list-conversation-flows` | `client.conversationFlow.list()` |
 | Phone numbers list | `GET /v2/list-phone-numbers` | `client.phoneNumber.list()` |
 | Retell LLMs list | `GET /v2/list-retell-llms` | `client.llm.list()` |
+| Retell LLM create and update | `POST /create-retell-llm`, `PATCH /update-retell-llm/{llm_id}` with `model_config` | `client.llm.create()`, `client.llm.update()`; `--model` and `--s2s-model` build `model_config`, and `--file` bodies with `model`, `s2s_model`, `model_high_priority`, `model_ultrafast`, `model_temperature` or `backup_model` are rejected |
 | Test case definitions list | `GET /v2/list-test-case-definitions` | `client.tests.listTestCaseDefinitions()` |
 | Test runs list | `GET /v2/list-test-runs/{test_case_batch_job_id}` | `client.tests.listTestRuns()` |
 | Agent versions list | `GET /list-agent-versions/{agent_id}` | `client.agent.listVersions()` |
 | Agent publish | `POST /publish-agent-version/{agent_id}` with an explicit version | `client.agent.publish()` or `client.chatAgent.publish()` |
 | Agent tags read | `GET /get-agent-root/{agent_id}` | Generic SDK `get()` with the current path |
-| Agent tag assignment and tag dynamic variables | `PATCH /update-agent-root/{agent_id}` with the complete tag map. Each tag is `{ version, dynamic_variables }`, and `dynamic_variables` is a string map (`AgentRootTagState` on the current list-agents schema; `retell-sdk` 6.0.1 `AgentListResponse.Item.Tags`) | Generic SDK `patch()` with the current path |
+| Agent tag assignment and tag dynamic variables | `PATCH /update-agent-root/{agent_id}` with the complete tag map. Each tag is `{ version, dynamic_variables }`, and `dynamic_variables` is a string map (`AgentRootTagState` on the current list-agents schema; `retell-sdk` 6.2.19 `AgentListResponse.Item.Tags`) | Generic SDK `patch()` with the current path |
 | Live call override | `PATCH /v2/update-live-call/{call_id}` | Generic SDK `patch()` with the current path |
 | Call analysis rerun | `PUT /rerun-call-analysis/{call_id}` | Generic SDK `put()` with automatic retries disabled |
 | Chat analysis rerun | `PUT /rerun-chat-analysis/{chat_id}` | Generic SDK `put()` with automatic retries disabled |
 
-`retell-sdk` 6.0.1 exposes `client.call.updateLive()` and `client.call.rerunAnalysis()`. Agent tags still use the generic request client. `calls update-live` keeps generic `patch()` so the body stays `{ fields_to_override, call_control }`. `calls rerun-analysis` keeps generic `put()` with retries disabled. `calls create-web` follows `client.call.createWebCall()` and prints the v3 connection payload: `call_id`, `access_token`, `transport`, `ice_servers`, and `expires_at`. Tag assignment paginates `GET /list-agent-versions/{agent_id}` when `--agent-version` is set, sends the complete current tag map, and verifies the selected tag with a final read. Dynamic variables on the selected tag are preserved unless variable flags are passed. Those flags merge by default; `--replace` replaces that tag's map. The pinned SDK has no tag-update helper, so the CLI keeps using generic `get()` and `patch()` on the agent-root paths. `calls update-live` supports `override_dynamic_variables`, `metadata`, `data_storage_setting`, `additional_context`, and `trigger_response`, and returns the API's `{ "success": true }` response.
+`retell-sdk` 6.2.19 exposes `client.call.updateLive()` and `client.call.rerunAnalysis()`. Agent tags still use the generic request client. `calls update-live` keeps generic `patch()` so the body stays `{ fields_to_override, call_control }`. `calls rerun-analysis` keeps generic `put()` with retries disabled. `calls create-web` follows `client.call.createWebCall()` and prints the v3 connection payload: `call_id`, `access_token`, `transport`, `ice_servers`, and `expires_at`. Tag assignment paginates `GET /list-agent-versions/{agent_id}` when `--agent-version` is set, sends the complete current tag map, and verifies the selected tag with a final read. Dynamic variables on the selected tag are preserved unless variable flags are passed. Those flags merge by default; `--replace` replaces that tag's map. The pinned SDK has no tag-update helper, so the CLI keeps using generic `get()` and `patch()` on the agent-root paths. `calls update-live` supports `override_dynamic_variables`, `metadata`, `data_storage_setting`, `additional_context`, and `trigger_response`, and returns the API's `{ "success": true }` response.
 
 ## Removed legacy contracts
 

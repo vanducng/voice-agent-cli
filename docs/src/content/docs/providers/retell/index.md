@@ -3,7 +3,7 @@ title: Retell
 description: Current provider coverage and SDK boundary
 ---
 
-Retell is the first provider. The integration is built on the official `retell-sdk`, pinned exactly to `6.0.1` in the root `package.json` and `package-lock.json` as of 2026-09-29. Twilio is documented separately.
+Retell is the first provider. The integration is built on the official `retell-sdk`, pinned exactly to `6.2.19` in the root `package.json` and `package-lock.json` as of 2026-11-10. Twilio is documented separately.
 
 The `vac retell` namespace covers:
 

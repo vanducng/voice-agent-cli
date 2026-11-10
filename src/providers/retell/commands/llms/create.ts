@@ -13,6 +13,11 @@ import {
 } from "../../services/output-formatter";
 import { readJsonObjectFile } from "../../../../core/json-arg";
 import type { LlmCreateParams } from "retell-sdk/resources/llm";
+import {
+  modelConfigFromFlags,
+  rejectLegacyModelFields,
+  throwValidation,
+} from "./model-config";
 
 export interface CreateLlmOptions {
   file?: string;
@@ -43,18 +48,15 @@ export async function createLlmCommand(
           `--file is mutually exclusive with ${simpleFlags.join(", ")}. Put all fields in the JSON body.`,
         );
       }
-      params = readJsonObjectFile(
-        options.file,
-        "--file",
-      ) as unknown as LlmCreateParams;
+      const body = readJsonObjectFile(options.file, "--file");
+      rejectLegacyModelFields(body, "--file");
+      params = body as unknown as LlmCreateParams;
     } else {
       params = {};
       if (options.generalPrompt !== undefined)
         params.general_prompt = options.generalPrompt;
-      if (options.model)
-        params.model = options.model as LlmCreateParams["model"];
-      if (options.s2sModel)
-        params.s2s_model = options.s2sModel as LlmCreateParams["s2s_model"];
+      const modelConfig = modelConfigFromFlags(options.model, options.s2sModel);
+      if (modelConfig) params.model_config = modelConfig;
       if (options.startSpeaker) {
         if (!["user", "agent"].includes(options.startSpeaker))
           throwValidation("--start-speaker must be 'user' or 'agent'");
@@ -78,10 +80,4 @@ export async function createLlmCommand(
   } catch (error) {
     handleSdkError(error);
   }
-}
-
-function throwValidation(message: string): never {
-  const err = new Error(message);
-  err.name = "ValidationError";
-  throw err;
 }
