@@ -14,6 +14,7 @@ import {
 import { readJsonObjectFile } from "../../../../core/json-arg";
 import { parseNumericFlag } from "../../../../core/numeric-flag";
 import type { LlmUpdateParams } from "retell-sdk/resources/llm";
+import { rejectLegacyModelFields, throwValidation } from "./model-config";
 
 export interface UpdateLlmOptions {
   file: string;
@@ -27,13 +28,11 @@ export async function updateLlmCommand(
 ): Promise<void> {
   try {
     const rawBody = readJsonObjectFile(options.file, "--file");
-    if (Object.keys(rawBody).length === 0) {
-      const err = new Error(
-        "--file body is empty. Pass at least one mutation field (e.g. general_prompt, model).",
+    if (Object.keys(rawBody).length === 0)
+      throwValidation(
+        "--file body is empty. Pass at least one mutation field (e.g. general_prompt, model_config).",
       );
-      err.name = "ValidationError";
-      throw err;
-    }
+    rejectLegacyModelFields(rawBody, "--file");
     const body = rawBody as unknown as LlmUpdateParams;
 
     if (options.version !== undefined) {

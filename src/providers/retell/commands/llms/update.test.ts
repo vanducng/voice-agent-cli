@@ -44,6 +44,21 @@ describe("updateLlmCommand", () => {
     });
   });
 
+  it("rejects deprecated model fields", async () => {
+    writeFileSync(
+      tmpFile,
+      JSON.stringify({ model: "gpt-4.1", model_temperature: 0.2 }),
+    );
+    await updateLlmCommand("llm_1", { file: tmpFile });
+    expect(outputFormatter.handleSdkError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "ValidationError",
+        message: expect.stringContaining("model, model_temperature"),
+      }),
+    );
+    expect(mockClient.llm.update).not.toHaveBeenCalled();
+  });
+
   it("rejects non-numeric --version", async () => {
     writeFileSync(tmpFile, JSON.stringify({ general_prompt: "p" }));
     await updateLlmCommand("llm_1", { file: tmpFile, version: "latest" });

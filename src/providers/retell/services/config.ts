@@ -122,7 +122,7 @@ function readConfigFile(configPath: string): Config | null {
     }
 
     throw new ConfigError(
-      `Invalid config file format at ${configPath}: ${current.error.errors
+      `Invalid config file format at ${configPath}: ${current.error.issues
         .map((error) => error.message)
         .join(", ")}`,
       "INVALID_CONFIG",
@@ -186,7 +186,7 @@ export function saveConfig(
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw new ConfigError(
-        `Invalid configuration: ${error.errors.map((issue) => issue.message).join(", ")}`,
+        `Invalid configuration: ${error.issues.map((issue) => issue.message).join(", ")}`,
         "INVALID_CONFIG",
       );
     }
