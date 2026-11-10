@@ -10,6 +10,10 @@ export const ORIGINATION_SID = `OU${"5".repeat(32)}`;
 export const CREATED_ORIGINATION_SID = `OU${"7".repeat(32)}`;
 export const CALL_SID = `CA${"6".repeat(32)}`;
 export const CALL_SID_2 = `CA${"8".repeat(32)}`;
+export const TRUNK_CALL_SID = `CA${"e".repeat(32)}`;
+export const TRUNK_CALL_SID_2 = `CA${"f".repeat(32)}`;
+export const TRUNK_SIP_TO = `:+${"15555550100"}@sip.example.com`;
+export const TRUNK_SIP_FROM = "sip:+15555550102@sip.example.com";
 export const CREDENTIAL_SID = `CL${"c".repeat(32)}`;
 export const CREATED_CREDENTIAL_SID = `CL${"d".repeat(32)}`;
 export const IP_ACL_SID = `AL${"e".repeat(32)}`;
@@ -270,6 +274,32 @@ export function createTwilioHttp() {
         phone_number_sid: NUMBER_SID_2,
       }),
     );
+    calls.set(
+      TRUNK_CALL_SID,
+      callPayload({
+        sid: TRUNK_CALL_SID,
+        from: TRUNK_SIP_FROM,
+        to: TRUNK_SIP_TO,
+        status: "completed",
+        direction: "trunking-originating",
+        start_time: "Thu, 10 Oct 2026 12:05:00 +0000",
+        end_time: "Thu, 10 Oct 2026 12:06:00 +0000",
+        duration: "60",
+      }),
+    );
+    calls.set(
+      TRUNK_CALL_SID_2,
+      callPayload({
+        sid: TRUNK_CALL_SID_2,
+        from: PHONE_2,
+        to: TRUNK_SIP_TO,
+        status: "completed",
+        direction: "trunking-originating",
+        start_time: "Thu, 10 Oct 2026 12:07:00 +0000",
+        end_time: "Thu, 10 Oct 2026 12:08:00 +0000",
+        duration: "60",
+      }),
+    );
   }
 
   function dispatch(opts: RecordedRequest) {
@@ -479,8 +509,20 @@ export function createTwilioHttp() {
         if (before !== undefined && start >= before) return false;
         return true;
       });
-      const page = slicePage(items, params);
-      return ok(page2010("calls", page, null));
+      const pageSize = Number(params.PageSize ?? items.length) || items.length;
+      const token = params.PageToken ? String(params.PageToken) : "";
+      const start = token.startsWith("offset:") ? Number(token.slice(7)) : 0;
+      const page = items.slice(start, start + pageSize);
+      const nextStart = start + page.length;
+      return ok(
+        page2010(
+          "calls",
+          page,
+          nextStart < items.length
+            ? `/2010-04-01/Accounts/${ACCOUNT}/Calls.json?PageToken=offset:${nextStart}`
+            : null,
+        ),
+      );
     }
 
     const callMatch = path.match(/\/Calls\/(CA[0-9a-fA-F]{32})\.json$/);

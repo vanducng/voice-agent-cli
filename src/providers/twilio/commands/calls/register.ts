@@ -12,8 +12,14 @@ export function registerCallCommands(program: Command): void {
   calls
     .command("list")
     .description("List calls")
-    .option("--from <caller>", "Filter by the caller")
-    .option("--to <callee>", "Filter by the callee")
+    .option(
+      "--from <caller>",
+      "Caller E.164. Also matches that number inside a SIP URI",
+    )
+    .option(
+      "--to <callee>",
+      "Callee E.164. Also matches that number inside a SIP URI",
+    )
     .option(
       "--status <status>",
       "queued, ringing, in-progress, canceled, completed, failed, busy, or no-answer",
@@ -21,7 +27,7 @@ export function registerCallCommands(program: Command): void {
     .option("--start-after <time>", "UTC ISO-8601 start time lower bound")
     .option("--start-before <time>", "UTC ISO-8601 start time upper bound")
     .option("--limit <n>", "Page size, from 1 to 1000")
-    .option("--pagination-key <key>", "PageToken from the previous page")
+    .option("--pagination-key <key>", "Cursor from the previous page")
     .option("--fields <fields>", "Comma-separated fields to return")
     .addHelpText(
       "after",

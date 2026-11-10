@@ -1,9 +1,9 @@
 ---
 title: Quick start
-description: Authenticate and inspect Retell resources
+description: Authenticate and inspect Retell or Twilio resources
 ---
 
-`src/cli.ts` registers Retell and Twilio. Start with Retell for voice agents, or with Twilio for numbers, Elastic SIP trunks, and calls.
+`src/cli.ts` registers Retell and Twilio. Start with Retell for voice agents, or with Twilio for numbers, Elastic SIP trunks, calls, messages, and alerts.
 
 ## Authenticate
 
