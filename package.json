@@ -58,16 +58,16 @@
     "microdiff": "^1.5.0",
     "retell-sdk": "6.2.19",
     "twilio": "6.1.2",
-    "zod": "^3.25.0"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "@vitest/coverage-v8": "^4.1.11",
+    "@vitest/coverage-v8": "^4.1.12",
     "esbuild": "^0.28.1",
     "prettier": "^3.8.1",
     "tsx": "^4.21.0",
     "typescript": "^5.0.0",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.12"
   },
   "overrides": {
     "whatwg-url": "^14.0.0",
