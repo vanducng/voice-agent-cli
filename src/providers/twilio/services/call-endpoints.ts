@@ -5,6 +5,7 @@ import { paginationFromUrl, project } from "./query";
 import { mapCall, type CallView } from "./views";
 
 const DEFAULT_PAGE_SIZE = 50;
+const FETCH_PAGE_SIZE = 1000;
 const CURSOR_PREFIX = "cf1:";
 
 interface CallCursor {
@@ -100,7 +101,7 @@ export async function listEndpointCalls(
   },
 ): Promise<{ items: CallView[]; has_more: boolean; pagination_key?: string }> {
   const limit = options.limit ?? DEFAULT_PAGE_SIZE;
-  const cursor = decodeCursor(options.paginationKey, limit);
+  const cursor = decodeCursor(options.paginationKey, FETCH_PAGE_SIZE);
   const matches: Parameters<typeof mapCall>[0][] = [];
   let pageToken = cursor.pageToken;
   let skip = cursor.skip;

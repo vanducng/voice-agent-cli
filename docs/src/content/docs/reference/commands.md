@@ -50,13 +50,13 @@ vac [--help] [--version]
 | `trunks origination` | Add, update, or remove an origination URL                               |
 | `trunks credentials` | List, associate, or remove a credential list                            |
 | `trunks ip-access-control-lists` | List, associate, or remove an IP access control list        |
-| `calls`              | List and get calls, and list redacted call events                       |
+| `calls`              | List and get calls, including an E.164 inside a SIP URI, and list redacted call events |
 | `messages`           | List and get SMS messages without the body unless requested             |
 | `messaging-services` | List and get messaging services and their sender pools                  |
 | `recordings`         | List and get recording metadata                                         |
 | `alerts`             | List and get Monitor alerts                                             |
 
-See [Twilio](../providers/twilio/) for authentication, fields, and the dry-run contract.
+See [Twilio](../providers/twilio/) for authentication, fields, and the dry-run contract. `calls list --from` and `--to` match that exact endpoint or the same E.164 number inside a SIP URI. Reuse `pagination_key` with the same endpoint, status, and time filters.
 
 Generated help is the exact reference for subcommands, required arguments, and flags:
 

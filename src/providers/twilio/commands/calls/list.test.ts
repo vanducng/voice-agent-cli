@@ -66,18 +66,10 @@ describe("twilio call endpoint filters", () => {
       fields: "sid,to,direction",
     });
 
-    expect(
-      http().requests.every(
-        (request) =>
-          request.params?.To === undefined &&
-          request.params?.From === undefined,
-      ),
-    ).toBe(true);
-    expect(
-      http().requests.some((request) =>
-        String(request.params?.PageToken ?? "").startsWith("offset:"),
-      ),
-    ).toBe(true);
+    expect(http().requests).toHaveLength(1);
+    expect(http().requests[0]?.params).toMatchObject({ PageSize: 1000 });
+    expect(http().requests[0]?.params).not.toHaveProperty("To");
+    expect(http().requests[0]?.params).not.toHaveProperty("From");
     const first = jsonFrom(log);
     expect(first).toMatchObject({
       items: [

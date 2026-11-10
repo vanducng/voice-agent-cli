@@ -36,7 +36,7 @@ JSON stdout or structured JSON stderr
 | `src/providers/retell/commands/` | Retell command registration and actions                   | Root provider selection                   |
 | `src/providers/retell/services/` | Config, SDK client, prompts, output, and Retell helpers   | Other providers                           |
 | `src/providers/retell/types/`    | Retell request and response types                         | Shared provider abstractions              |
-| `src/providers/twilio/`          | Twilio commands, credentials, and SDK access              | Retell resources and other providers      |
+| `src/providers/twilio/`          | Twilio numbers, trunks, calls, messages, alerts, credentials, and SDK access | Retell resources and other providers |
 
 `src/architecture.test.ts` enforces each provider SDK import boundary. `src/cli.test.ts` checks `upgrade`, `retell`, and `twilio`, and verifies every registered group.
 

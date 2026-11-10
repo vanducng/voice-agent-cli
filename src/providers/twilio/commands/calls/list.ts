@@ -26,7 +26,13 @@ export async function listCallsCommand(
   options: ListCallsOptions = {},
 ): Promise<void> {
   try {
-    const query: CallListInstancePageOptions = { ...pageQuery(options) };
+    const query: CallListInstancePageOptions = {
+      ...pageQuery({
+        limit: options.limit,
+        paginationKey:
+          options.from || options.to ? undefined : options.paginationKey,
+      }),
+    };
     if (options.status) query.status = parseCallStatus(options.status);
     if (options.startAfter)
       query.startTimeAfter = parseUtcIso(options.startAfter, "--start-after");

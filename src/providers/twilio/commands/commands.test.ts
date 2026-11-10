@@ -354,7 +354,7 @@ describe("twilio commands", () => {
       Status: "completed",
       "StartTime>": "2026-10-10T00:00:00Z",
       "StartTime<": "2026-10-10T13:00:00Z",
-      PageSize: 20,
+      PageSize: 1000,
     });
     expect(http().requests[0]?.params).not.toHaveProperty("From");
     expect(http().requests[0]?.params).not.toHaveProperty("To");
