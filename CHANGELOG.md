@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.1](https://github.com/vanducng/voice-agent-cli/compare/v0.11.0...v0.11.1) (2026-11-10)
+
+
+### Bug Fixes
+
+* **twilio:** match call endpoints inside SIP URIs ([#34](https://github.com/vanducng/voice-agent-cli/issues/34)) ([f4dac49](https://github.com/vanducng/voice-agent-cli/commit/f4dac493dce3353e803923a0ae59dac84533812c))
+
 ## [0.11.0](https://github.com/vanducng/voice-agent-cli/compare/v0.10.0...v0.11.0) (2026-11-10)
 
 
