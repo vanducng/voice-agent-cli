@@ -37,8 +37,14 @@ export function registerLlmsCommands(program: Command): void {
     .description("Create a new Retell LLM (simple flags or full --file)")
     .option("-f, --file <path>", "Path to JSON file with the full LLM body")
     .option("--general-prompt <text>", "General system prompt")
-    .option("--model <model>", "Text LLM model (e.g. gpt-4.1)")
-    .option("--s2s-model <model>", "Speech-to-speech model")
+    .option(
+      "--model <model>",
+      "Cascading model_config primary model (e.g. gpt-4.1)",
+    )
+    .option(
+      "--s2s-model <model>",
+      "S2S model_config primary model (e.g. gpt-realtime)",
+    )
     .option("--start-speaker <who>", "'user' or 'agent'")
     .option("--begin-message <msg>", "First agent utterance")
     .option("--fields <fields>", "Comma-separated list of fields to return")

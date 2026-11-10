@@ -44,7 +44,7 @@ describe("createLlmCommand", () => {
     });
     expect(mockClient.llm.create).toHaveBeenCalledWith({
       general_prompt: "You are a helper.",
-      model: "gpt-4.1",
+      model_config: { type: "cascading", primary: { model: "gpt-4.1" } },
       start_speaker: "agent",
       begin_message: "Hi!",
     });
@@ -53,12 +53,36 @@ describe("createLlmCommand", () => {
   it("creates from --file", async () => {
     const body = {
       general_prompt: "From file",
-      model: "gpt-4.1",
+      model_config: { type: "cascading", primary: { model: "gpt-4.1" } },
       states: [],
     };
     writeFileSync(tmpFile, JSON.stringify(body));
     await createLlmCommand({ file: tmpFile });
     expect(mockClient.llm.create).toHaveBeenCalledWith(body);
+  });
+
+  it("maps --s2s-model to an s2s model_config", async () => {
+    await createLlmCommand({ s2sModel: "gpt-realtime" });
+    expect(mockClient.llm.create).toHaveBeenCalledWith({
+      model_config: { type: "s2s", primary: { model: "gpt-realtime" } },
+    });
+  });
+
+  it("rejects --model with --s2s-model", async () => {
+    await createLlmCommand({ model: "gpt-4.1", s2sModel: "gpt-realtime" });
+    expect(outputFormatter.handleSdkError).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "ValidationError" }),
+    );
+    expect(mockClient.llm.create).not.toHaveBeenCalled();
+  });
+
+  it("rejects deprecated model fields in --file", async () => {
+    writeFileSync(tmpFile, JSON.stringify({ model: "gpt-4.1" }));
+    await createLlmCommand({ file: tmpFile });
+    expect(outputFormatter.handleSdkError).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "ValidationError" }),
+    );
+    expect(mockClient.llm.create).not.toHaveBeenCalled();
   });
 
   it("rejects invalid --start-speaker", async () => {

@@ -56,7 +56,7 @@
   "dependencies": {
     "commander": "^14.0.0",
     "microdiff": "^1.5.0",
-    "retell-sdk": "6.0.1",
+    "retell-sdk": "6.2.19",
     "twilio": "6.1.2",
     "zod": "^3.25.0"
   },
